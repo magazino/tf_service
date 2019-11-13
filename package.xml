@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>simple_tf_buffer_server</name>
+  <version>0.1.0</version>
+  <description>The simple_tf_buffer_server package</description>
+
+  <author email="grupp@magazino.eu">Michael Grupp</author>
+  <maintainer email="grupp@magazino.eu">Michael Grupp</maintainer>
+  <url type="website">https://magazino.eu</url>
+  <license>BSD</license>
+
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>geometry_msgs</depend>
+  <depend>roscpp</depend>
+  <depend>roslib</depend>
+  <depend>tf2_ros</depend>
+  <depend>std_msgs</depend>
+
+  <export>
+  </export>
+</package>
