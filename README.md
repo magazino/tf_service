@@ -41,5 +41,7 @@ if (buffer.canTransform("map", "odom", ros::Time(0), ros::Duration(1), &errstr))
 ## TODO
 
 * recovery for persistent service loss
+  * `buffer.isConnected()` and `buffer.reconnect()`: done
+  * auto recovery?
 * handling of all INTERNAL/OTHER error responses
 * Python client (binding)
