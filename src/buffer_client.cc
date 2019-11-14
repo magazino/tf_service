@@ -3,10 +3,10 @@
 #include "tf2/exceptions.h"
 
 #include "simple_tf_buffer_server/CanTransform.h"
+#include "simple_tf_buffer_server/ExceptionType.h"
 #include "simple_tf_buffer_server/LookupTransform.h"
-#include "simple_tf_buffer_server/StatusCode.h"
 
-using simple_tf_buffer_server::StatusCode;
+using simple_tf_buffer_server::ExceptionType;
 
 SimpleBufferClient::SimpleBufferClient(
     const std::string& can_transform_service_name,
@@ -34,9 +34,10 @@ geometry_msgs::TransformStamped SimpleBufferClient::lookupTransform(
   if (!const_cast<ros::ServiceClient*>(&lookup_transform_client_)->call(srv)) {
     throw tf2::TransformException("service call to buffer server failed");
   }
-  if (srv.response.status.code == StatusCode::DEADLINE_EXCEEDED) {
+  if (srv.response.status.exception_type == ExceptionType::TIMEOUT_EXCEPTION) {
     throw tf2::TimeoutException(srv.response.status.message);
-  } else if (srv.response.status.code == StatusCode::NOT_FOUND) {
+  } else if (srv.response.status.exception_type ==
+             ExceptionType::TRANSFORM_EXCEPTION) {
     throw tf2::TransformException(srv.response.status.message);
   }
   return srv.response.transform;
@@ -56,9 +57,10 @@ geometry_msgs::TransformStamped SimpleBufferClient::lookupTransform(
   if (!const_cast<ros::ServiceClient*>(&lookup_transform_client_)->call(srv)) {
     throw tf2::TransformException("service call to buffer server failed");
   }
-  if (srv.response.status.code == StatusCode::DEADLINE_EXCEEDED) {
+  if (srv.response.status.exception_type == ExceptionType::TIMEOUT_EXCEPTION) {
     throw tf2::TimeoutException(srv.response.status.message);
-  } else if (srv.response.status.code == StatusCode::NOT_FOUND) {
+  } else if (srv.response.status.exception_type ==
+             ExceptionType::TRANSFORM_EXCEPTION) {
     throw tf2::TransformException(srv.response.status.message);
   }
   return srv.response.transform;

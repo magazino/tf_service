@@ -28,7 +28,7 @@ find_package(Boost REQUIRED COMPONENTS program_options)
 
 add_message_files(
   FILES
-  StatusCode.msg
+  ExceptionType.msg
   StatusResponse.msg
 )
 

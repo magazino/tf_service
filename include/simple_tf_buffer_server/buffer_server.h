@@ -6,12 +6,12 @@
 
 #include "geometry_msgs/PoseStamped.h"
 #include "simple_tf_buffer_server/CanTransform.h"
+#include "simple_tf_buffer_server/ExceptionType.h"
 #include "simple_tf_buffer_server/LookupTransform.h"
-#include "simple_tf_buffer_server/StatusCode.h"
 
 constexpr float kMaxAllowedTimeout = 10.;
 
-using simple_tf_buffer_server::StatusCode;
+using simple_tf_buffer_server::ExceptionType;
 
 // Exposes TF lookup as a ROS service.
 // Since TF buffer lookups are thread-safe, this class can be used with parallel
@@ -33,7 +33,7 @@ class SimpleBufferServer {
       simple_tf_buffer_server::LookupTransformResponse& response) {
     // TODO make sure not to block forever if someone sends a long timeout.
     if (request.timeout > ros::Duration(kMaxAllowedTimeout)) {
-      response.status.code = StatusCode::INVALID_ARGUMENT;
+      response.status.exception_type = ExceptionType::INTERNAL;
       response.status.message = "Requests with a timeout above " +
                                 std::to_string(kMaxAllowedTimeout) +
                                 " are not supported.";
@@ -51,15 +51,15 @@ class SimpleBufferServer {
                                                request.time, request.timeout);
       }
     } catch (tf2::TimeoutException& exception) {
-      response.status.code = StatusCode::DEADLINE_EXCEEDED;
+      response.status.exception_type = ExceptionType::TIMEOUT_EXCEPTION;
       response.status.message = exception.what();
       return true;
     } catch (tf2::TransformException& exception) {
-      response.status.code = StatusCode::NOT_FOUND;
+      response.status.exception_type = ExceptionType::TRANSFORM_EXCEPTION;
       response.status.message = exception.what();
       return true;
     }
-    response.status.code = StatusCode::OK;
+    response.status.exception_type = ExceptionType::NONE;
     response.status.message = "Success.";
     response.transform = transform;
     return true;
