@@ -1,24 +1,40 @@
 #include "simple_tf_buffer_server/buffer_client.h"
 
+#include "boost/filesystem.hpp"
 #include "tf2/exceptions.h"
 
 #include "simple_tf_buffer_server/CanTransform.h"
 #include "simple_tf_buffer_server/ExceptionType.h"
 #include "simple_tf_buffer_server/LookupTransform.h"
+#include "simple_tf_buffer_server/constants.h"
 
 using simple_tf_buffer_server::ExceptionType;
 
+namespace {
+std::string Join(const std::string& node_name,
+                 const std::string& service_name) {
+  boost::filesystem::path node(node_name);
+  boost::filesystem::path service(service_name);
+  return (node / service).string();
+}
+}  // namespace
+
+namespace tf2_ros {
+
 SimpleBufferClient::SimpleBufferClient(
-    const std::string& can_transform_service_name,
-    const std::string& lookup_transform_service_name,
+    const std::string& server_node_name,
     std::shared_ptr<ros::NodeHandle> node_handle)
     : node_handle_(node_handle) {
+  const std::string can_transform_service_full =
+      Join(server_node_name, kCanTransformServiceName);
   can_transform_client_ =
       node_handle_->serviceClient<simple_tf_buffer_server::CanTransform>(
-          can_transform_service_name, true /* persistent */);
+          can_transform_service_full, true /* persistent */);
+  const std::string lookup_transform_service_full =
+      Join(server_node_name, kLookupTransformServiceName);
   lookup_transform_client_ =
       node_handle_->serviceClient<simple_tf_buffer_server::LookupTransform>(
-          lookup_transform_service_name, true /* persistent */);
+          lookup_transform_service_full, true /* persistent */);
 }
 
 SimpleBufferClient::~SimpleBufferClient() {}
@@ -113,3 +129,5 @@ bool SimpleBufferClient::canTransform(const std::string& target_frame,
   }
   return srv.response.can_transform;
 }
+
+}  // namespace tf2_ros

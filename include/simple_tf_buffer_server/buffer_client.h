@@ -4,12 +4,13 @@
 #include "ros/ros.h"
 #include "tf2_ros/buffer_interface.h"
 
+namespace tf2_ros {
+
 class SimpleBufferClient : public tf2_ros::BufferInterface {
  public:
   SimpleBufferClient() = delete;
 
-  SimpleBufferClient(const std::string& can_transform_service_name,
-                     const std::string& lookup_transform_service_name,
+  SimpleBufferClient(const std::string& server_node_name,
                      std::shared_ptr<ros::NodeHandle> node_handle);
 
   ~SimpleBufferClient();
@@ -38,8 +39,10 @@ class SimpleBufferClient : public tf2_ros::BufferInterface {
 
  private:
   std::shared_ptr<ros::NodeHandle> node_handle_;
-  
+
   // mutable because ServiceClient::call() isn't const.
   mutable ros::ServiceClient can_transform_client_;
   mutable ros::ServiceClient lookup_transform_client_;
 };
+
+}  // namespace tf2_ros

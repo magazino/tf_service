@@ -6,15 +6,15 @@ int main(int argc, char** argv) {
   ros::init(argc, argv, "client_test");
   auto node_handle = std::make_shared<ros::NodeHandle>();
 
-  SimpleBufferClient buffer("/simple_tf_buffer_server/can_transform",
-                            "/simple_tf_buffer_server/lookup_transform",
-                            node_handle);
+  tf2_ros::SimpleBufferClient buffer("/simple_tf_buffer_server", node_handle);
 
   while (ros::ok()) {
-    if (buffer.canTransform("map", "map_carto", ros::Time(0),
-                            ros::Duration(1))) {
-      ROS_INFO_STREAM(buffer.lookupTransform("map", "map_carto", ros::Time(0),
-                                             ros::Duration(1)));
+    std::string errstr;
+    if (buffer.canTransform("map", "map_carto", ros::Time(0), ros::Duration(1),
+                            &errstr)) {
+      buffer.lookupTransform("map", "odom", ros::Time(0), ros::Duration(1));
+    } else {
+      ROS_INFO_STREAM(errstr);
     }
     ros::Duration(0.01).sleep();
   }
