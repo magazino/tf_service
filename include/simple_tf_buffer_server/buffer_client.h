@@ -47,8 +47,8 @@ class SimpleBufferClient : public tf2_ros::BufferInterface {
   std::shared_ptr<ros::NodeHandle> node_handle_;
 
   // mutable because ServiceClient::call() isn't const.
-  mutable ros::ServiceClient can_transform_client_;
-  mutable ros::ServiceClient lookup_transform_client_;
+  mutable ros::ServiceClient can_transform_client_;  // GUARDED_BY(mutex_);
+  mutable ros::ServiceClient lookup_transform_client_;  // GUARDED_BY(mutex_);
 };
 
 }  // namespace tf2_ros
