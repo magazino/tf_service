@@ -32,8 +32,7 @@ int main(int argc, char** argv) {
 
   ROS_INFO_STREAM("Starting server with " << num_threads << " handler threads");
   tf2_ros::SimpleBufferServer server(private_node_handle);
-  auto FLAGS_num_threads = 10;
-  ros::AsyncSpinner spinner(FLAGS_num_threads);
+  ros::AsyncSpinner spinner(num_threads);
   spinner.start();
   ros::waitForShutdown();
   spinner.stop();
