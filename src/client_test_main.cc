@@ -2,20 +2,51 @@
 
 #include "simple_tf_buffer_server/buffer_client.h"
 
+#include "boost/program_options.hpp"
+
+namespace po = boost::program_options;
+
 int main(int argc, char** argv) {
+  float frequency = 1;
+
+  po::options_description desc("Options");
+  // clang-format off
+  desc.add_options()
+    ("help", "show usage")
+    ("frequency", po::value<float>(&frequency)->default_value(10.),
+     "main loop frequency")
+  ;
+  // clang-format on
+  po::variables_map vm;
+  po::store(po::parse_command_line(argc, argv, desc), vm);
+  po::notify(vm);
+  if (vm.count("help")) {
+    std::cout << desc << std::endl;
+    return EXIT_FAILURE;
+  }
+
   ros::init(argc, argv, "client_test");
   auto node_handle = std::make_shared<ros::NodeHandle>();
 
   tf2_ros::SimpleBufferClient buffer("/simple_tf_buffer_server", node_handle);
 
+  ros::Rate rate(ros::Duration(1. / frequency));
   while (ros::ok()) {
     std::string errstr;
-    if (buffer.canTransform("map", "map_carto", ros::Time(0), ros::Duration(1),
+    if (buffer.canTransform("map", "odom", ros::Time(0), ros::Duration(1),
                             &errstr)) {
-      buffer.lookupTransform("map", "odom", ros::Time(0), ros::Duration(1));
+      try {
+        buffer.lookupTransform("map", "odom", ros::Time(0), ros::Duration(1));
+      } catch (const tf2::TransformException& exception) {
+        ROS_ERROR_STREAM_THROTTLE(10, exception.what());
+      }
     } else {
-      ROS_INFO_STREAM(errstr);
+      ROS_ERROR_STREAM_THROTTLE(10, errstr);
+      if (!buffer.isConnected()) {
+        buffer.reconnect();
+      }
     }
-    ros::Duration(0.01).sleep();
+    rate.sleep();
+    ros::spinOnce();
   }
 }

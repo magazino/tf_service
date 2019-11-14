@@ -1,4 +1,5 @@
 #include "simple_tf_buffer_server/buffer_client.h"
+#include <chrono>
 
 #include "boost/filesystem.hpp"
 #include "tf2/exceptions.h"
@@ -11,7 +12,7 @@
 using simple_tf_buffer_server::ExceptionType;
 
 namespace {
-std::string Join(const std::string& node_name,
+std::string join(const std::string& node_name,
                  const std::string& service_name) {
   boost::filesystem::path node(node_name);
   boost::filesystem::path service(service_name);
@@ -26,18 +27,40 @@ SimpleBufferClient::SimpleBufferClient(
     std::shared_ptr<ros::NodeHandle> node_handle)
     : node_handle_(node_handle) {
   const std::string can_transform_service_full =
-      Join(server_node_name, kCanTransformServiceName);
+      join(server_node_name, kCanTransformServiceName);
   can_transform_client_ =
       node_handle_->serviceClient<simple_tf_buffer_server::CanTransform>(
           can_transform_service_full, true /* persistent */);
   const std::string lookup_transform_service_full =
-      Join(server_node_name, kLookupTransformServiceName);
+      join(server_node_name, kLookupTransformServiceName);
   lookup_transform_client_ =
       node_handle_->serviceClient<simple_tf_buffer_server::LookupTransform>(
           lookup_transform_service_full, true /* persistent */);
 }
 
 SimpleBufferClient::~SimpleBufferClient() {}
+
+bool SimpleBufferClient::reconnect(ros::Duration timeout) {
+  std::lock_guard<std::mutex> guard(mutex_);
+  if (!can_transform_client_.waitForExistence(timeout)) {
+    ROS_ERROR("Failed to reconnect to server.");
+    return false;
+  }
+  can_transform_client_ =
+      node_handle_->serviceClient<simple_tf_buffer_server::CanTransform>(
+          can_transform_client_.getService(), true /* persistent */);
+  lookup_transform_client_ =
+      node_handle_->serviceClient<simple_tf_buffer_server::LookupTransform>(
+          lookup_transform_client_.getService(), true /* persistent */);
+  ROS_INFO("Reconnected to server.");
+  return true;
+}
+
+bool SimpleBufferClient::isConnected() const {
+  std::lock_guard<std::mutex> guard(mutex_);
+  return (can_transform_client_.isValid() &&
+          lookup_transform_client_.isValid());
+}
 
 geometry_msgs::TransformStamped SimpleBufferClient::lookupTransform(
     const std::string& target_frame, const std::string& source_frame,
@@ -47,13 +70,21 @@ geometry_msgs::TransformStamped SimpleBufferClient::lookupTransform(
   srv.request.source_frame = source_frame;
   srv.request.time = time;
   srv.request.timeout = timeout;
-  if (!lookup_transform_client_.call(srv)) {
+  bool success;
+  {
+    std::lock_guard<std::mutex> guard(mutex_);
+    success = lookup_transform_client_.call(srv);
+  }
+  if (!success) {
     throw tf2::TransformException("service call to buffer server failed");
   }
   if (srv.response.status.exception_type == ExceptionType::TIMEOUT_EXCEPTION) {
     throw tf2::TimeoutException(srv.response.status.message);
   } else if (srv.response.status.exception_type ==
              ExceptionType::TRANSFORM_EXCEPTION) {
+    throw tf2::TransformException(srv.response.status.message);
+  } else if (srv.response.status.exception_type != ExceptionType::NONE) {
+    // TODO use other type?
     throw tf2::TransformException(srv.response.status.message);
   }
   return srv.response.transform;
@@ -70,13 +101,21 @@ geometry_msgs::TransformStamped SimpleBufferClient::lookupTransform(
   srv.request.source_time = source_time;
   srv.request.fixed_frame = fixed_frame;
   srv.request.timeout = timeout;
-  if (!lookup_transform_client_.call(srv)) {
+  bool success;
+  {
+    std::lock_guard<std::mutex> guard(mutex_);
+    success = lookup_transform_client_.call(srv);
+  }
+  if (!success) {
     throw tf2::TransformException("service call to buffer server failed");
   }
   if (srv.response.status.exception_type == ExceptionType::TIMEOUT_EXCEPTION) {
     throw tf2::TimeoutException(srv.response.status.message);
   } else if (srv.response.status.exception_type ==
              ExceptionType::TRANSFORM_EXCEPTION) {
+    throw tf2::TransformException(srv.response.status.message);
+  } else if (srv.response.status.exception_type != ExceptionType::NONE) {
+    // TODO use other type?
     throw tf2::TransformException(srv.response.status.message);
   }
   return srv.response.transform;
@@ -92,7 +131,12 @@ bool SimpleBufferClient::canTransform(const std::string& target_frame,
   srv.request.source_frame = source_frame;
   srv.request.time = time;
   srv.request.timeout = timeout;
-  if (!can_transform_client_.call(srv)) {
+  bool success;
+  {
+    std::lock_guard<std::mutex> guard(mutex_);
+    success = can_transform_client_.call(srv);
+  }
+  if (!success) {
     if (errstr != NULL) {
       *errstr = "service call to buffer server failed";
     }
@@ -118,7 +162,12 @@ bool SimpleBufferClient::canTransform(const std::string& target_frame,
   srv.request.source_time = source_time;
   srv.request.fixed_frame = fixed_frame;
   srv.request.timeout = timeout;
-  if (!can_transform_client_.call(srv)) {
+  bool success;
+  {
+    std::lock_guard<std::mutex> guard(mutex_);
+    success = can_transform_client_.call(srv);
+  }
+  if (!success) {
     if (errstr != NULL) {
       *errstr = "service call to buffer server failed";
     }

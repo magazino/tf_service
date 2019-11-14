@@ -16,16 +16,17 @@ SimpleBufferServer::SimpleBufferServer(
   tf_buffer_.setUsingDedicatedThread(true);
   tf_listener_ = std::make_unique<tf2_ros::TransformListener>(tf_buffer_);
   service_servers_.push_back(private_node_handle_->advertiseService(
-      kLookupTransformServiceName, &SimpleBufferServer::HandleLookupTransform,
+      kLookupTransformServiceName, &SimpleBufferServer::handleLookupTransform,
       this));
   service_servers_.push_back(private_node_handle_->advertiseService(
-      kCanTransformServiceName, &SimpleBufferServer::HandleCanTransform, this));
+      kCanTransformServiceName, &SimpleBufferServer::handleCanTransform, this));
 }
 
-bool SimpleBufferServer::HandleLookupTransform(
+bool SimpleBufferServer::handleLookupTransform(
     simple_tf_buffer_server::LookupTransformRequest& request,
     simple_tf_buffer_server::LookupTransformResponse& response) {
   // TODO make sure not to block forever if someone sends a long timeout.
+  // TODO move to client?
   if (request.timeout > ros::Duration(kMaxAllowedTimeout)) {
     response.status.exception_type = ExceptionType::INTERNAL;
     response.status.message = "Requests with a timeout above " +
@@ -44,13 +45,19 @@ bool SimpleBufferServer::HandleLookupTransform(
           tf_buffer_.lookupTransform(request.target_frame, request.source_frame,
                                      request.time, request.timeout);
     }
-  } catch (tf2::TimeoutException& exception) {
+  } catch (const tf2::TimeoutException& exception) {
     response.status.exception_type = ExceptionType::TIMEOUT_EXCEPTION;
     response.status.message = exception.what();
     return true;
-  } catch (tf2::TransformException& exception) {
+  } catch (const tf2::TransformException& exception) {
     response.status.exception_type = ExceptionType::TRANSFORM_EXCEPTION;
     response.status.message = exception.what();
+    return true;
+  } catch (...) {
+    response.status.exception_type = ExceptionType::OTHER;
+    response.status.message =
+        "unknown exception while handling lookup transform request";
+    ROS_ERROR_STREAM(response.status.message);
     return true;
   }
   response.status.exception_type = ExceptionType::NONE;
@@ -59,7 +66,7 @@ bool SimpleBufferServer::HandleLookupTransform(
   return true;
 }
 
-bool SimpleBufferServer::HandleCanTransform(
+bool SimpleBufferServer::handleCanTransform(
     simple_tf_buffer_server::CanTransformRequest& request,
     simple_tf_buffer_server::CanTransformResponse& response) {
   if (!request.fixed_frame.empty()) {

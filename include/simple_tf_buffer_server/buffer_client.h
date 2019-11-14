@@ -1,4 +1,5 @@
 #include <memory>
+#include <mutex>
 #include <string>
 
 #include "ros/ros.h"
@@ -37,7 +38,12 @@ class SimpleBufferClient : public tf2_ros::BufferInterface {
                     const std::string& fixed_frame, const ros::Duration timeout,
                     std::string* errstr = NULL) const override;
 
+  bool reconnect(ros::Duration timeout = ros::Duration(10));
+  bool isConnected() const;
+
  private:
+  mutable std::mutex mutex_;
+
   std::shared_ptr<ros::NodeHandle> node_handle_;
 
   // mutable because ServiceClient::call() isn't const.

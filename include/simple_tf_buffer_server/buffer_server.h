@@ -19,11 +19,11 @@ class SimpleBufferServer {
 
   SimpleBufferServer(std::shared_ptr<ros::NodeHandle> private_node_handle);
 
-  bool HandleLookupTransform(
+  bool handleLookupTransform(
       simple_tf_buffer_server::LookupTransformRequest& request,
       simple_tf_buffer_server::LookupTransformResponse& response);
 
-  bool HandleCanTransform(
+  bool handleCanTransform(
       simple_tf_buffer_server::CanTransformRequest& request,
       simple_tf_buffer_server::CanTransformResponse& response);
 
