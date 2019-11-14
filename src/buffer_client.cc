@@ -31,7 +31,7 @@ geometry_msgs::TransformStamped SimpleBufferClient::lookupTransform(
   srv.request.source_frame = source_frame;
   srv.request.time = time;
   srv.request.timeout = timeout;
-  if (!const_cast<ros::ServiceClient*>(&lookup_transform_client_)->call(srv)) {
+  if (!lookup_transform_client_.call(srv)) {
     throw tf2::TransformException("service call to buffer server failed");
   }
   if (srv.response.status.exception_type == ExceptionType::TIMEOUT_EXCEPTION) {
@@ -54,7 +54,7 @@ geometry_msgs::TransformStamped SimpleBufferClient::lookupTransform(
   srv.request.source_time = source_time;
   srv.request.fixed_frame = fixed_frame;
   srv.request.timeout = timeout;
-  if (!const_cast<ros::ServiceClient*>(&lookup_transform_client_)->call(srv)) {
+  if (!lookup_transform_client_.call(srv)) {
     throw tf2::TransformException("service call to buffer server failed");
   }
   if (srv.response.status.exception_type == ExceptionType::TIMEOUT_EXCEPTION) {
@@ -76,7 +76,7 @@ bool SimpleBufferClient::canTransform(const std::string& target_frame,
   srv.request.source_frame = source_frame;
   srv.request.time = time;
   srv.request.timeout = timeout;
-  if (!const_cast<ros::ServiceClient*>(&can_transform_client_)->call(srv)) {
+  if (!can_transform_client_.call(srv)) {
     if (errstr != NULL) {
       *errstr = "service call to buffer server failed";
     }
@@ -102,7 +102,7 @@ bool SimpleBufferClient::canTransform(const std::string& target_frame,
   srv.request.source_time = source_time;
   srv.request.fixed_frame = fixed_frame;
   srv.request.timeout = timeout;
-  if (!const_cast<ros::ServiceClient*>(&can_transform_client_)->call(srv)) {
+  if (!can_transform_client_.call(srv)) {
     if (errstr != NULL) {
       *errstr = "service call to buffer server failed";
     }
