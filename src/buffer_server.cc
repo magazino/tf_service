@@ -1,12 +1,10 @@
 #include "simple_tf_buffer_server/buffer_server.h"
 
 #include "geometry_msgs/TransformStamped.h"
-#include "simple_tf_buffer_server/ExceptionType.h"
 #include "simple_tf_buffer_server/constants.h"
+#include "tf2_msgs/TF2Error.h"
 
 constexpr float kMaxAllowedTimeout = 10.;
-
-using simple_tf_buffer_server::ExceptionType;
 
 namespace tf2_ros {
 
@@ -28,10 +26,10 @@ bool SimpleBufferServer::handleLookupTransform(
   // TODO make sure not to block forever if someone sends a long timeout.
   // TODO move to client?
   if (request.timeout > ros::Duration(kMaxAllowedTimeout)) {
-    response.status.exception_type = ExceptionType::INTERNAL;
-    response.status.message = "Requests with a timeout above " +
-                              std::to_string(kMaxAllowedTimeout) +
-                              " are not supported.";
+    response.status.error = tf2_msgs::TF2Error::INVALID_ARGUMENT_ERROR;
+    response.status.error_string = "Requests with a timeout above " +
+                                   std::to_string(kMaxAllowedTimeout) +
+                                   " are not supported.";
     return true;
   }
   geometry_msgs::TransformStamped transform;
@@ -45,23 +43,33 @@ bool SimpleBufferServer::handleLookupTransform(
           tf_buffer_.lookupTransform(request.target_frame, request.source_frame,
                                      request.time, request.timeout);
     }
+  } catch (const tf2::ConnectivityException& exception) {
+    response.status.error = tf2_msgs::TF2Error::CONNECTIVITY_ERROR;
+    response.status.error_string = exception.what();
+    return true;
+  } catch (const tf2::ExtrapolationException& exception) {
+    response.status.error = tf2_msgs::TF2Error::EXTRAPOLATION_ERROR;
+    response.status.error_string = exception.what();
+    return true;
+  } catch (const tf2::InvalidArgumentException& exception) {
+    response.status.error = tf2_msgs::TF2Error::INVALID_ARGUMENT_ERROR;
+    response.status.error_string = exception.what();
+    return true;
+  } catch (const tf2::LookupException& exception) {
+    response.status.error = tf2_msgs::TF2Error::LOOKUP_ERROR;
+    response.status.error_string = exception.what();
+    return true;
   } catch (const tf2::TimeoutException& exception) {
-    response.status.exception_type = ExceptionType::TIMEOUT_EXCEPTION;
-    response.status.message = exception.what();
+    response.status.error = tf2_msgs::TF2Error::TIMEOUT_ERROR;
+    response.status.error_string = exception.what();
     return true;
   } catch (const tf2::TransformException& exception) {
-    response.status.exception_type = ExceptionType::TRANSFORM_EXCEPTION;
-    response.status.message = exception.what();
-    return true;
-  } catch (...) {
-    response.status.exception_type = ExceptionType::OTHER;
-    response.status.message =
-        "unknown exception while handling lookup transform request";
-    ROS_ERROR_STREAM(response.status.message);
+    response.status.error = tf2_msgs::TF2Error::TRANSFORM_ERROR;
+    response.status.error_string = exception.what();
     return true;
   }
-  response.status.exception_type = ExceptionType::NONE;
-  response.status.message = "Success.";
+  response.status.error = tf2_msgs::TF2Error::NO_ERROR;
+  response.status.error_string = "Success.";
   response.transform = transform;
   return true;
 }

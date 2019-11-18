@@ -13,6 +13,7 @@ set(PACKAGE_DEPENDENCIES
   geometry_msgs
   roscpp
   roslib
+  tf2_msgs
   tf2_ros
   std_msgs
 )
@@ -32,12 +33,6 @@ find_package(Boost REQUIRED COMPONENTS filesystem program_options)
 ## Declare ROS messages, services and actions ##
 ################################################
 
-add_message_files(
-  FILES
-  ExceptionType.msg
-  StatusResponse.msg
-)
-
 add_service_files(
   FILES
   CanTransform.srv
@@ -48,6 +43,7 @@ generate_messages(
   DEPENDENCIES
   geometry_msgs
   std_msgs
+  tf2_msgs
 )
 
 

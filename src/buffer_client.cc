@@ -3,21 +3,46 @@
 
 #include "boost/filesystem.hpp"
 #include "tf2/exceptions.h"
+#include "tf2_msgs/TF2Error.h"
 
 #include "simple_tf_buffer_server/CanTransform.h"
-#include "simple_tf_buffer_server/ExceptionType.h"
 #include "simple_tf_buffer_server/LookupTransform.h"
 #include "simple_tf_buffer_server/constants.h"
 
-using simple_tf_buffer_server::ExceptionType;
-
 namespace {
+
 std::string join(const std::string& node_name,
                  const std::string& service_name) {
   boost::filesystem::path node(node_name);
   boost::filesystem::path service(service_name);
   return (node / service).string();
 }
+
+void throwOnError(tf2_msgs::TF2Error& status) {
+  switch (status.error) {
+    case tf2_msgs::TF2Error::CONNECTIVITY_ERROR:
+      throw tf2::ConnectivityException(status.error_string);
+      break;
+    case tf2_msgs::TF2Error::EXTRAPOLATION_ERROR:
+      throw tf2::ExtrapolationException(status.error_string);
+      break;
+    case tf2_msgs::TF2Error::INVALID_ARGUMENT_ERROR:
+      throw tf2::InvalidArgumentException(status.error_string);
+      break;
+    case tf2_msgs::TF2Error::LOOKUP_ERROR:
+      throw tf2::LookupException(status.error_string);
+      break;
+    case tf2_msgs::TF2Error::TIMEOUT_ERROR:
+      throw tf2::TimeoutException(status.error_string);
+      break;
+    case tf2_msgs::TF2Error::TRANSFORM_ERROR:
+      throw tf2::TransformException(status.error_string);
+      break;
+    default:
+      break;
+  }
+}
+
 }  // namespace
 
 namespace tf2_ros {
@@ -78,15 +103,7 @@ geometry_msgs::TransformStamped SimpleBufferClient::lookupTransform(
   if (!success) {
     throw tf2::TransformException("service call to buffer server failed");
   }
-  if (srv.response.status.exception_type == ExceptionType::TIMEOUT_EXCEPTION) {
-    throw tf2::TimeoutException(srv.response.status.message);
-  } else if (srv.response.status.exception_type ==
-             ExceptionType::TRANSFORM_EXCEPTION) {
-    throw tf2::TransformException(srv.response.status.message);
-  } else if (srv.response.status.exception_type != ExceptionType::NONE) {
-    // TODO use other type?
-    throw tf2::TransformException(srv.response.status.message);
-  }
+  throwOnError(srv.response.status);
   return srv.response.transform;
 }
 
@@ -109,15 +126,7 @@ geometry_msgs::TransformStamped SimpleBufferClient::lookupTransform(
   if (!success) {
     throw tf2::TransformException("service call to buffer server failed");
   }
-  if (srv.response.status.exception_type == ExceptionType::TIMEOUT_EXCEPTION) {
-    throw tf2::TimeoutException(srv.response.status.message);
-  } else if (srv.response.status.exception_type ==
-             ExceptionType::TRANSFORM_EXCEPTION) {
-    throw tf2::TransformException(srv.response.status.message);
-  } else if (srv.response.status.exception_type != ExceptionType::NONE) {
-    // TODO use other type?
-    throw tf2::TransformException(srv.response.status.message);
-  }
+  throwOnError(srv.response.status);
   return srv.response.transform;
 }
 
