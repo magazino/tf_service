@@ -11,8 +11,7 @@ class SimpleBufferClient : public tf2_ros::BufferInterface {
  public:
   SimpleBufferClient() = delete;
 
-  SimpleBufferClient(const std::string& server_node_name,
-                     std::shared_ptr<ros::NodeHandle> node_handle);
+  SimpleBufferClient(const std::string& server_node_name);
 
   ~SimpleBufferClient();
 
@@ -44,7 +43,7 @@ class SimpleBufferClient : public tf2_ros::BufferInterface {
  private:
   mutable std::mutex mutex_;
 
-  std::shared_ptr<ros::NodeHandle> node_handle_;
+  ros::NodeHandle node_handle_;
 
   // mutable because ServiceClient::call() isn't const.
   mutable ros::ServiceClient can_transform_client_;     // GUARDED_BY(mutex_);

@@ -26,9 +26,8 @@ int main(int argc, char** argv) {
   }
 
   ros::init(argc, argv, "client_test");
-  auto node_handle = std::make_shared<ros::NodeHandle>();
 
-  tf2_ros::SimpleBufferClient buffer("/simple_tf_buffer_server", node_handle);
+  tf2_ros::SimpleBufferClient buffer("/simple_tf_buffer_server");
 
   ros::Rate rate(ros::Duration(1. / frequency));
   while (ros::ok()) {

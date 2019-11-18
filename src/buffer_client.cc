@@ -47,19 +47,17 @@ void throwOnError(tf2_msgs::TF2Error& status) {
 
 namespace tf2_ros {
 
-SimpleBufferClient::SimpleBufferClient(
-    const std::string& server_node_name,
-    std::shared_ptr<ros::NodeHandle> node_handle)
-    : node_handle_(node_handle) {
+SimpleBufferClient::SimpleBufferClient(const std::string& server_node_name)
+    : node_handle_(ros::NodeHandle()) {
   const std::string can_transform_service_full =
       join(server_node_name, kCanTransformServiceName);
   can_transform_client_ =
-      node_handle_->serviceClient<simple_tf_buffer_server::CanTransform>(
+      node_handle_.serviceClient<simple_tf_buffer_server::CanTransform>(
           can_transform_service_full, true /* persistent */);
   const std::string lookup_transform_service_full =
       join(server_node_name, kLookupTransformServiceName);
   lookup_transform_client_ =
-      node_handle_->serviceClient<simple_tf_buffer_server::LookupTransform>(
+      node_handle_.serviceClient<simple_tf_buffer_server::LookupTransform>(
           lookup_transform_service_full, true /* persistent */);
 }
 
@@ -72,10 +70,10 @@ bool SimpleBufferClient::reconnect(ros::Duration timeout) {
     return false;
   }
   can_transform_client_ =
-      node_handle_->serviceClient<simple_tf_buffer_server::CanTransform>(
+      node_handle_.serviceClient<simple_tf_buffer_server::CanTransform>(
           can_transform_client_.getService(), true /* persistent */);
   lookup_transform_client_ =
-      node_handle_->serviceClient<simple_tf_buffer_server::LookupTransform>(
+      node_handle_.serviceClient<simple_tf_buffer_server::LookupTransform>(
           lookup_transform_client_.getService(), true /* persistent */);
   ROS_INFO("Reconnected to server.");
   return true;
