@@ -61,7 +61,7 @@ SimpleBufferClient::SimpleBufferClient(const std::string& server_node_name)
           lookup_transform_service_full, true /* persistent */);
 }
 
-SimpleBufferClient::~SimpleBufferClient() {}
+SimpleBufferClient::~SimpleBufferClient() { node_handle_.shutdown(); }
 
 bool SimpleBufferClient::reconnect(ros::Duration timeout) {
   std::lock_guard<std::mutex> guard(mutex_);

@@ -22,6 +22,8 @@ find_package(catkin REQUIRED COMPONENTS ${PACKAGE_DEPENDENCIES})
 
 find_package(Boost REQUIRED COMPONENTS filesystem program_options)
 
+# pybind11 is header-only.
+add_subdirectory(3rdparty/pybind11)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -69,6 +71,7 @@ catkin_package(
 
 include_directories(
   include
+  src
   ${Boost_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
 )
@@ -83,6 +86,16 @@ add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}
 )
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${catkin_INCLUDE_DIRS})
+
+# Python bindings
+# TODO chooses Python version automatically?
+pybind11_add_module(simple_tf_buffer_client_py src/python_bindings/buffer_client_py.cc)
+target_include_directories(simple_tf_buffer_client_py SYSTEM PRIVATE ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
+target_link_libraries(simple_tf_buffer_client_py PRIVATE
+  ${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES}
+)
 
 # server executable
 add_executable(server src/server_main.cc)
@@ -129,6 +142,10 @@ install(TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+)
+
+install(TARGETS simple_tf_buffer_client_py
+  DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
 )
 
 install(DIRECTORY include/
