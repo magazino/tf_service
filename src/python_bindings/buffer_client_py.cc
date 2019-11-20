@@ -13,7 +13,7 @@ namespace py = pybind11;
 
 // Python module "client", will be <pkg_name>.client after catkin build.
 PYBIND11_MODULE(client, m) {
-  py::class_<tf2_ros::SimpleBufferClient>(m, "SimpleBufferClient")
+  py::class_<tf2_ros::SimpleBufferClient>(m, "SimpleBufferClientBinding")
       .def(py::init([](const std::string& server_node_name) {
              // TODO
              ros::init(ros::M_string(), "simple_tf_buffer_client_py_internal",

@@ -25,10 +25,7 @@ find_package(Boost REQUIRED COMPONENTS filesystem program_options)
 # pybind11 is header-only.
 add_subdirectory(3rdparty/pybind11)
 
-## Uncomment this if the package has a setup.py. This macro ensures
-## modules and global scripts declared therein get installed
-## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-# catkin_python_setup()
+catkin_python_setup()
 
 
 ################################################
@@ -110,7 +107,7 @@ target_link_libraries(server
   ${Boost_LIBRARIES}
 )
 
-add_executable(client_test src/client_test_main.cc)
+add_executable(client_test test/client_test_main.cc)
 add_dependencies(client_test
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
   ${catkin_EXPORTED_TARGETS}
@@ -132,6 +129,7 @@ install(TARGETS server
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
+# TODO: remove after prototyping
 install(TARGETS client_test
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
