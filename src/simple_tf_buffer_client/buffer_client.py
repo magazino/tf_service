@@ -17,7 +17,7 @@ class SimpleBufferClient(tf2_ros.BufferInterface):
         # All actual work is done by the C++ binding.
         self.client = SimpleBufferClientBinding(server_node_name)
 
-    def wait_for_server(self, timeout=rospy.Duration()):
+    def wait_for_server(self, timeout=rospy.Duration(-1)):
         """
         Block until the server is ready to respond to requests. 
 

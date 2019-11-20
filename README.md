@@ -1,6 +1,18 @@
 # simple_tf_buffer_server
 
-Prototype RPC TF buffer server / client implementation based on ROS services.
+TF buffer server / client implementation based on ROS services.
+
+Implemented in C++ and Python bindings.
+
+### Installation
+
+```
+magclone simple_tf_buffer_server
+cd simple_tf_buffer_server
+git submodule init
+git submodule update
+ci .
+```
 
 ---
 ## server
@@ -18,9 +30,22 @@ The client implements the normal TF2 buffer interface.
 
 ### Python
 
-*TODO*
+The Python bindings are wrapped in a standard `tf2_ros.BufferInterface`:
+
+```python
+
+import rospy                                                         
+from simple_tf_buffer_client import SimpleBufferClient
+buffer = SimpleBufferClient("/simple_tf_buffer_server")
+
+# Use it like any other TF2 buffer.
+if buffer.can_transform("map", "odom", rospy.Time(0), rospy.Duration(5)):
+    buffer.lookup_transform("map", "odom", rospy.Time(0), rospy.Duration(1))
+```
 
 ### C++
+
+Implements a standard `tf2_ros::BufferInterface`:
 
 ```cpp
 #include "simple_tf_buffer_server/buffer_client.h"
@@ -36,12 +61,3 @@ if (buffer.canTransform("map", "odom", ros::Time(0), ros::Duration(1), &errstr))
 }
 
 ```
-
----
-## TODO
-
-* recovery for persistent service loss
-  * `buffer.isConnected()` and `buffer.reconnect()`: done
-  * auto recovery?
-* handling of all INTERNAL/OTHER error responses
-* Python client (binding)
