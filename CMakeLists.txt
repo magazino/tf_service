@@ -89,9 +89,9 @@ target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${catkin_INCLUDE_DIRS})
 
 # Python bindings
 # TODO chooses Python version automatically?
-pybind11_add_module(simple_tf_buffer_client_py src/python_bindings/buffer_client_py.cc)
-target_include_directories(simple_tf_buffer_client_py SYSTEM PRIVATE ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
-target_link_libraries(simple_tf_buffer_client_py PRIVATE
+pybind11_add_module(client src/python_bindings/buffer_client_py.cc)
+target_include_directories(client SYSTEM PRIVATE ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
+target_link_libraries(client PRIVATE
   ${PROJECT_NAME}
   ${catkin_LIBRARIES}
   ${Boost_LIBRARIES}
@@ -144,7 +144,7 @@ install(TARGETS ${PROJECT_NAME}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
 )
 
-install(TARGETS simple_tf_buffer_client_py
+install(TARGETS client
   DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
 )
 

@@ -25,9 +25,9 @@ The client implements the normal TF2 buffer interface.
 ```cpp
 #include "simple_tf_buffer_server/buffer_client.h"
 
-...
+// ...
 
-tf2_ros::SimpleBufferClient buffer("/simple_tf_buffer_server", node_handle);
+tf2_ros::SimpleBufferClient buffer("/simple_tf_buffer_server");
 
 // Use it like any other TF2 buffer.
 std::string errstr;
