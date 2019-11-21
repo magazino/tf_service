@@ -93,6 +93,7 @@ geometry_msgs::TransformStamped SimpleBufferClient::lookupTransform(
   srv.request.source_frame = source_frame;
   srv.request.time = time;
   srv.request.timeout = timeout;
+  srv.request.advanced = false;
   bool success;
   {
     std::lock_guard<std::mutex> guard(mutex_);
@@ -116,6 +117,7 @@ geometry_msgs::TransformStamped SimpleBufferClient::lookupTransform(
   srv.request.source_time = source_time;
   srv.request.fixed_frame = fixed_frame;
   srv.request.timeout = timeout;
+  srv.request.advanced = true;
   bool success;
   {
     std::lock_guard<std::mutex> guard(mutex_);
@@ -138,6 +140,7 @@ bool SimpleBufferClient::canTransform(const std::string& target_frame,
   srv.request.source_frame = source_frame;
   srv.request.time = time;
   srv.request.timeout = timeout;
+  srv.request.advanced = false;
   bool success;
   {
     std::lock_guard<std::mutex> guard(mutex_);
@@ -169,6 +172,7 @@ bool SimpleBufferClient::canTransform(const std::string& target_frame,
   srv.request.source_time = source_time;
   srv.request.fixed_frame = fixed_frame;
   srv.request.timeout = timeout;
+  srv.request.advanced = true;
   bool success;
   {
     std::lock_guard<std::mutex> guard(mutex_);

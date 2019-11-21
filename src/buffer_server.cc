@@ -34,7 +34,7 @@ bool SimpleBufferServer::handleLookupTransform(
   }
   geometry_msgs::TransformStamped transform;
   try {
-    if (!request.fixed_frame.empty()) {
+    if (request.advanced) {
       transform = tf_buffer_.lookupTransform(
           request.target_frame, request.target_time, request.source_frame,
           request.source_time, request.fixed_frame, request.timeout);
@@ -77,7 +77,7 @@ bool SimpleBufferServer::handleLookupTransform(
 bool SimpleBufferServer::handleCanTransform(
     simple_tf_buffer_server::CanTransformRequest& request,
     simple_tf_buffer_server::CanTransformResponse& response) {
-  if (!request.fixed_frame.empty()) {
+  if (request.advanced) {
     response.can_transform = tf_buffer_.canTransform(
         request.target_frame, request.target_time, request.source_frame,
         request.source_time, request.fixed_frame, request.timeout,

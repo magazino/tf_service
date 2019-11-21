@@ -5,6 +5,9 @@ time source_time
 string fixed_frame
 time time
 duration timeout
+
+# Whether to use the long "advanced" overload of tf2_ros::LookupTransform.
+bool advanced
 ---
 bool can_transform
 string errstr
