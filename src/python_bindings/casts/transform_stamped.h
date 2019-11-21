@@ -26,27 +26,8 @@ struct type_caster<geometry_msgs::TransformStamped> {
    * indicates whether implicit conversions should be applied.
    */
   bool load(handle src, bool) {
-    /* Extract PyObject from handle */
-    PyObject* source = src.ptr();
-
-    if (!(PyObject_HasAttrString(source, "header") &&
-          PyObject_HasAttrString(source, "child_frame_id") &&
-          PyObject_HasAttrString(source, "transform"))) {
-      return false;
-    }
-
-    // PyObject* secs_tmp = PyNumber_Long(PyObject_GetAttrString(source,
-    // "secs")); PyObject* nsecs_tmp =
-    //    PyNumber_Long(PyObject_GetAttrString(source, "nsecs"));
-    // if (!(secs_tmp && nsecs_tmp)) {
-    //  return false;
-    //}
-
-    value = geometry_msgs::TransformStamped();
-    // Py_DECREF(secs_tmp);
-    // Py_DECREF(nsecs_tmp);
-    /* Ensure return code was OK (to avoid out-of-range errors etc) */
-    return !PyErr_Occurred();
+    // TODO: not implemented!!
+    return false;
   }
 
   /**

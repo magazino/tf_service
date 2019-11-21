@@ -12,6 +12,11 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
+  <!-- TODO: use this instead of submodule
+             ...once the Ubuntu package is less broken:
+             https://bugs.launchpad.net/ubuntu/+source/pybind11/+bug/1779578 -->
+  <!-- <build_depend>pybind11-dev</build_depend> -->
+
   <depend>boost</depend>
   <depend>geometry_msgs</depend>
   <depend>roscpp</depend>
@@ -19,6 +24,8 @@
   <depend>tf2_msgs</depend>
   <depend>tf2_ros</depend>
   <depend>std_msgs</depend>
+
+  <exec_depend>rospy</exec_depend>
 
   <export>
   </export>

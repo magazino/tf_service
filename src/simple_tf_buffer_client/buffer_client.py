@@ -3,20 +3,25 @@ import rospy
 # types with tf2_ros.TransformRegistration
 import tf2_geometry_msgs
 import tf2_ros
+
+from simple_tf_buffer_client.decorators import translate_exceptions
 from simple_tf_buffer_server.client import SimpleBufferClientBinding
 
 
 class SimpleBufferClient(tf2_ros.BufferInterface):
     """
-    Extends the raw C++ binding to the full Python tf2_ros.BufferInterface.
+    Extends the raw C++ binding to the full Python tf2_ros.BufferInterface,
+    adding methods like transform() that don't exist in the C++ interface.
     The interface is exactly the same as the old action-based client.
     """
 
+    @translate_exceptions
     def __init__(self, server_node_name):
         tf2_ros.BufferInterface.__init__(self)
         # All actual work is done by the C++ binding.
         self.client = SimpleBufferClientBinding(server_node_name)
 
+    @translate_exceptions
     def wait_for_server(self, timeout=rospy.Duration(-1)):
         """
         Block until the server is ready to respond to requests. 
@@ -27,6 +32,7 @@ class SimpleBufferClient(tf2_ros.BufferInterface):
         """
         return self.client.reconnect(timeout)
 
+    @translate_exceptions
     def lookup_transform(self, target_frame, source_frame, time,
                          timeout=rospy.Duration(0.0)):
         """
@@ -42,7 +48,7 @@ class SimpleBufferClient(tf2_ros.BufferInterface):
         return self.client.lookup_transform(target_frame, source_frame, time,
                                             timeout)
 
-    # lookup, advanced api
+    @translate_exceptions
     def lookup_transform_full(self, target_frame, target_time, source_frame,
                               source_time, fixed_frame,
                               timeout=rospy.Duration(0.0)):
@@ -62,7 +68,7 @@ class SimpleBufferClient(tf2_ros.BufferInterface):
                                             source_frame, source_time,
                                             fixed_frame, timeout)
 
-    # can, simple api
+    @translate_exceptions
     def can_transform(self, target_frame, source_frame, time,
                       timeout=rospy.Duration(0.0)):
         """
@@ -79,6 +85,7 @@ class SimpleBufferClient(tf2_ros.BufferInterface):
         return self.client.can_transform(target_frame, source_frame, time,
                                          timeout, "")
 
+    @translate_exceptions
     def can_transform_full(self, target_frame, target_time, source_frame,
                            source_time, fixed_frame,
                            timeout=rospy.Duration(0.0)):

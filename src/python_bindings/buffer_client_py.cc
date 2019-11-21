@@ -60,4 +60,62 @@ PYBIND11_MODULE(client, m) {
       .def("reconnect", &tf2_ros::SimpleBufferClient::reconnect,
            /* doc strings for args */
            py::arg("timeout"));
+
+  // Register exception translators to this module.
+  // They are evaluated from last registered to first registered,
+  // so the base exception has to be registered first:
+  static py::exception<tf2::TransformException> TransformExceptionPy(
+      m, "TransformException");
+  py::register_exception_translator([](std::exception_ptr p) {
+    try {
+      if (p) std::rethrow_exception(p);
+    } catch (const tf2::TransformException& e) {
+      TransformExceptionPy(e.what());
+    }
+  });
+  static py::exception<tf2::ConnectivityException> ConnectivityExceptionPy(
+      m, "ConnectivityException");
+  py::register_exception_translator([](std::exception_ptr p) {
+    try {
+      if (p) std::rethrow_exception(p);
+    } catch (const tf2::ConnectivityException& e) {
+      ConnectivityExceptionPy(e.what());
+    }
+  });
+  static py::exception<tf2::ExtrapolationException> ExtrapolationExceptionPy(
+      m, "ExtrapolationException");
+  py::register_exception_translator([](std::exception_ptr p) {
+    try {
+      if (p) std::rethrow_exception(p);
+    } catch (const tf2::ExtrapolationException& e) {
+      ExtrapolationExceptionPy(e.what());
+    }
+  });
+  static py::exception<tf2::InvalidArgumentException>
+      InvalidArgumentExceptionPy(m, "InvalidArgumentException");
+  py::register_exception_translator([](std::exception_ptr p) {
+    try {
+      if (p) std::rethrow_exception(p);
+    } catch (const tf2::InvalidArgumentException& e) {
+      InvalidArgumentExceptionPy(e.what());
+    }
+  });
+  static py::exception<tf2::LookupException> LookupExceptionPy(
+      m, "LookupException");
+  py::register_exception_translator([](std::exception_ptr p) {
+    try {
+      if (p) std::rethrow_exception(p);
+    } catch (const tf2::LookupException& e) {
+      LookupExceptionPy(e.what());
+    }
+  });
+  static py::exception<tf2::TimeoutException> TimeoutExceptionPy(
+      m, "TimeoutException");
+  py::register_exception_translator([](std::exception_ptr p) {
+    try {
+      if (p) std::rethrow_exception(p);
+    } catch (const tf2::TimeoutException& e) {
+      TimeoutExceptionPy(e.what());
+    }
+  });
 }

@@ -25,6 +25,11 @@ find_package(Boost REQUIRED COMPONENTS filesystem program_options)
 # pybind11 is header-only.
 add_subdirectory(3rdparty/pybind11)
 
+
+##############
+## setup.py ##
+##############
+
 catkin_python_setup()
 
 
@@ -161,6 +166,18 @@ install(DIRECTORY include/
 #############
 ## Testing ##
 #############
+
+# TODO install to different location than BIN
+install(PROGRAMS
+  test/client_test_main.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+# TODO install to different location than SHARE
+install(FILES
+  test/benchmark_py.launch
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
 
 ## Add gtest based cpp test target and link libraries
 # catkin_add_gtest(${PROJECT_NAME}-test test/test_simple_tf_buffer_server.cpp)
