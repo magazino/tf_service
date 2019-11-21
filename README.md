@@ -59,5 +59,17 @@ std::string errstr;
 if (buffer.canTransform("map", "odom", ros::Time(0), ros::Duration(1), &errstr)) {
   buffer.lookupTransform("map", "odom", ros::Time(0), ros::Duration(1));
 }
+```
 
+## Benchmarks
+
+The Python client implementation is much more efficient than the old `tf2_ros.BufferClient`.
+
+The test scenario are 5 clients doing requests at 10Hz. Compare the resource consumption of:
+```
+roslaunch simple_tf_buffer_server benchmark_py.launch use_old_version:=true
+```
+with the new implementation from this package:
+```
+roslaunch simple_tf_buffer_server benchmark_py.launch use_old_version:=false
 ```

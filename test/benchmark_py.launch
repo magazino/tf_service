@@ -1,0 +1,52 @@
+<!-- Simple stress test that launches a TF server and a few clients. -->
+
+<launch>
+  <arg name="use_old_version" default="false"
+       doc="whether to use the old, action based version from TF2" />
+  <arg name="flags" if="$(arg use_old_version)" value="--use_old_version" />
+  <arg name="flags" unless="$(arg use_old_version)" value="" />
+
+  <node name="static_tf" pkg="tf2_ros" type="static_transform_publisher"
+    args="1 2 3 0 0 0 map odom" output="screen"/>
+
+  <!-- Server -->
+  <group unless="$(arg use_old_version)" >
+    <node name="simple_tf_buffer_server" pkg="simple_tf_buffer_server"
+          type="server" args="--num_threads 5" output="screen"/>
+  </group>
+  <group if="$(arg use_old_version)" >
+    <node name="tf2_buffer_server" pkg="tf2_ros" type="buffer_server" />
+  </group>
+
+  <!-- Clients -->
+  <node name="client_1" pkg="simple_tf_buffer_server" required="true"
+        type="client_test_main.py" args="
+        --lookup_frequency 10
+        $(arg flags)
+        " output="screen"/>
+
+  <node name="client_2" pkg="simple_tf_buffer_server" required="true"
+        type="client_test_main.py" args="
+        --lookup_frequency 10
+        $(arg flags)
+        " output="screen"/>
+
+  <node name="client_3" pkg="simple_tf_buffer_server" required="true"
+        type="client_test_main.py" args="
+        --lookup_frequency 10
+        $(arg flags)
+        " output="screen"/>
+
+  <node name="client_4" pkg="simple_tf_buffer_server" required="true"
+        type="client_test_main.py" args="
+        --lookup_frequency 10
+        $(arg flags)
+        " output="screen"/>
+
+  <node name="client_5" pkg="simple_tf_buffer_server" required="true"
+        type="client_test_main.py" args="
+        --lookup_frequency 10
+        $(arg flags)
+        " output="screen"/>
+
+</launch>
