@@ -73,3 +73,10 @@ with the new implementation from this package:
 ```
 roslaunch simple_tf_buffer_server benchmark_py.launch use_old_version:=false
 ```
+
+## Limitations
+
+Service calls are blocking and should be "short".
+To reduce the risk that clients can brick the server, timeouts greater than 10 seconds are not allowed.
+
+If you need very long timeouts, you might be better off with the old action-client based implementation from TF2.
