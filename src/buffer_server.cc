@@ -4,9 +4,8 @@
 #include "simple_tf_buffer_server/constants.h"
 #include "tf2_msgs/TF2Error.h"
 
-constexpr float kMaxAllowedTimeout = 10.;
 
-namespace tf2_ros {
+namespace simple_tf_buffer_server {
 
 SimpleBufferServer::SimpleBufferServer(
     std::shared_ptr<ros::NodeHandle> private_node_handle)
@@ -90,4 +89,4 @@ bool SimpleBufferServer::handleCanTransform(
   return true;
 }
 
-}  // namespace tf2_ros
+}  // namespace simple_tf_buffer_server

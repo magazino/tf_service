@@ -45,7 +45,7 @@ void throwOnError(tf2_msgs::TF2Error& status) {
 
 }  // namespace
 
-namespace tf2_ros {
+namespace simple_tf_buffer_server {
 
 SimpleBufferClient::SimpleBufferClient(const std::string& server_node_name)
     : node_handle_(ros::NodeHandle()) {
@@ -190,4 +190,4 @@ bool SimpleBufferClient::canTransform(const std::string& target_frame,
   return srv.response.can_transform;
 }
 
-}  // namespace tf2_ros
+}  // namespace simple_tf_buffer_server

@@ -10,7 +10,7 @@
 #include "simple_tf_buffer_server/CanTransform.h"
 #include "simple_tf_buffer_server/LookupTransform.h"
 
-namespace tf2_ros {
+namespace simple_tf_buffer_server {
 
 // Exposes TF lookup as a ROS service.
 // Since TF buffer lookups are thread-safe, this class can be used with parallel
@@ -36,4 +36,4 @@ class SimpleBufferServer {
   std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
 };
 
-}  // namespace tf2_ros
+}  // namespace simple_tf_buffer_server
