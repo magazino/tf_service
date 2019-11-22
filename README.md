@@ -12,12 +12,16 @@ Implemented in C++ and Python bindings.
 
 ### Installation
 
+#### Package
+
+*todo*
+
+#### Testing
+
 ```
 magclone simple_tf_buffer_server
-cd simple_tf_buffer_server
-git submodule init
-git submodule update
-ci .
+git -C simple_tf_buffer_server/ submodule update --init
+ci
 ```
 
 ---
