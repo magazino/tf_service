@@ -4,6 +4,12 @@ TF buffer server / client implementation based on ROS services.
 
 Implemented in C++ and Python bindings.
 
+---
+
+![diagram](diagram.png)
+
+---
+
 ### Installation
 
 ```
@@ -36,6 +42,7 @@ The Python bindings are wrapped in a standard `tf2_ros.BufferInterface`:
 
 import rospy                                                         
 from simple_tf_buffer_client import SimpleBufferClient
+
 buffer = SimpleBufferClient("/simple_tf_buffer_server")
 
 # Use it like any other TF2 buffer.
@@ -50,9 +57,11 @@ Implements a standard `tf2_ros::BufferInterface`:
 ```cpp
 #include "simple_tf_buffer_server/buffer_client.h"
 
+namespace sbs = simple_tf_buffer_server;
+
 // ...
 
-tf2_ros::SimpleBufferClient buffer("/simple_tf_buffer_server");
+sbs::SimpleBufferClient buffer("/simple_tf_buffer_server");
 
 // Use it like any other TF2 buffer.
 std::string errstr;
