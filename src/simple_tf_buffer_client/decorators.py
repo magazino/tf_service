@@ -8,7 +8,8 @@ import simple_tf_buffer_server.client
 def translate_exceptions(method):
     def translate(obj, *args, **kwargs):
         try:
-            method(obj, *args, **kwargs)
+            return_value = method(obj, *args, **kwargs)
+            return return_value
         except simple_tf_buffer_server.client.ConnectivityException as e:
             raise tf2_ros.ConnectivityException(str(e))
         except simple_tf_buffer_server.client.ExtrapolationException as e:
