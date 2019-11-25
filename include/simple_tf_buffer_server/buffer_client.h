@@ -41,6 +41,7 @@ class SimpleBufferClient : public tf2_ros::BufferInterface {
 
   bool reconnect(ros::Duration timeout = ros::Duration(10));
   bool isConnected() const;
+  bool waitForServer(const ros::Duration timeout = ros::Duration(-1));
 
  private:
   mutable std::mutex mutex_;

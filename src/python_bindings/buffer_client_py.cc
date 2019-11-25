@@ -19,8 +19,7 @@ PYBIND11_MODULE(client, m) {
              // TODO
              ros::init(ros::M_string(), "simple_tf_buffer_client_py_internal",
                        ros::init_options::AnonymousName);
-             return std::make_unique<sbs::SimpleBufferClient>(
-                 server_node_name);
+             return std::make_unique<sbs::SimpleBufferClient>(server_node_name);
            }),
            /* doc strings for args */
            py::arg("server_node_name"))
@@ -59,6 +58,9 @@ PYBIND11_MODULE(client, m) {
            py::return_value_policy::move)
       .def("is_connected", &sbs::SimpleBufferClient::isConnected)
       .def("reconnect", &sbs::SimpleBufferClient::reconnect,
+           /* doc strings for args */
+           py::arg("timeout"))
+      .def("wait_for_server", &sbs::SimpleBufferClient::waitForServer,
            /* doc strings for args */
            py::arg("timeout"));
 

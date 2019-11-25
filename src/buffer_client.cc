@@ -66,7 +66,7 @@ SimpleBufferClient::~SimpleBufferClient() { node_handle_.shutdown(); }
 bool SimpleBufferClient::reconnect(ros::Duration timeout) {
   std::lock_guard<std::mutex> guard(mutex_);
   if (!can_transform_client_.waitForExistence(timeout)) {
-    ROS_ERROR("Failed to reconnect to server.");
+    ROS_ERROR("Failed to connect to server.");
     return false;
   }
   can_transform_client_ =
@@ -75,7 +75,9 @@ bool SimpleBufferClient::reconnect(ros::Duration timeout) {
   lookup_transform_client_ =
       node_handle_.serviceClient<simple_tf_buffer_server::LookupTransform>(
           lookup_transform_client_.getService(), true /* persistent */);
-  ROS_INFO("Reconnected to server.");
+  ROS_DEBUG_STREAM("Connected to services "
+                   << lookup_transform_client_.getService() << " & "
+                   << can_transform_client_.getService());
   return true;
 }
 
@@ -83,6 +85,10 @@ bool SimpleBufferClient::isConnected() const {
   std::lock_guard<std::mutex> guard(mutex_);
   return (can_transform_client_.isValid() &&
           lookup_transform_client_.isValid());
+}
+
+bool SimpleBufferClient::waitForServer(const ros::Duration timeout) {
+  return isConnected() ? true : reconnect(timeout);
 }
 
 geometry_msgs::TransformStamped SimpleBufferClient::lookupTransform(
