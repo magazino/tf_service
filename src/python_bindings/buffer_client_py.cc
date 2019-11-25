@@ -16,9 +16,12 @@ namespace sbs = simple_tf_buffer_server;
 PYBIND11_MODULE(client, m) {
   py::class_<sbs::SimpleBufferClient>(m, "SimpleBufferClientBinding")
       .def(py::init([](const std::string& server_node_name) {
-             // TODO
+             // We need an internal node to create a node handle.
+             // Disable signal handling as it should be handled by rospy.
+             auto init_option_bitflags = (ros::init_options::AnonymousName |
+                                          ros::init_options::NoSigintHandler);
              ros::init(ros::M_string(), "simple_tf_buffer_client_py_internal",
-                       ros::init_options::AnonymousName);
+                       init_option_bitflags);
              return std::make_unique<sbs::SimpleBufferClient>(server_node_name);
            }),
            /* doc strings for args */
