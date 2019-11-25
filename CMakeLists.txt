@@ -179,11 +179,12 @@ install(FILES
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_simple_tf_buffer_server.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
+## rostests with gtest executables
+if(CATKIN_ENABLE_TESTING)
+  find_package(rostest REQUIRED)
+  add_rostest_gtest(client_rostest test/client_rostest.launch test/client_rostest.cc)
+  target_link_libraries(client_rostest ${PROJECT_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
