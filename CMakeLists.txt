@@ -112,30 +112,12 @@ target_link_libraries(server
   ${Boost_LIBRARIES}
 )
 
-add_executable(client_test test/client_test_main.cc)
-add_dependencies(client_test
-  ${${PROJECT_NAME}_EXPORTED_TARGETS}
-  ${catkin_EXPORTED_TARGETS}
-)
-target_include_directories(client_test SYSTEM PUBLIC ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
-target_link_libraries(client_test
-  ${PROJECT_NAME}
-  ${catkin_LIBRARIES}
-  ${Boost_LIBRARIES}
-)
 
 #############
 ## Install ##
 #############
 
 install(TARGETS server
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-# TODO: remove after prototyping
-install(TARGETS client_test
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -163,21 +145,10 @@ install(DIRECTORY include/
 #   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 # )
 
+
 #############
 ## Testing ##
 #############
-
-# TODO install to different location than BIN
-install(PROGRAMS
-  test/client_test_main.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-# TODO install to different location than SHARE
-install(FILES
-  test/benchmark_py.launch
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-)
 
 ## rostests with gtest executables
 if(CATKIN_ENABLE_TESTING)
@@ -188,3 +159,36 @@ endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+
+################
+## Benchmarks ##
+################
+
+# TODO: remove after prototyping
+set(INCLUDE_BENCHMARKS YES)
+
+if (INCLUDE_BENCHMARKS)
+  # Python
+  install(PROGRAMS
+    test/benchmark/client_test_main.py
+    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  )
+  
+  # C++
+  add_executable(client_test test/benchmark/client_test_main.cc)
+  add_dependencies(client_test ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+  target_include_directories(client_test SYSTEM PUBLIC ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
+  target_link_libraries(client_test ${PROJECT_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+  install(TARGETS client_test
+    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  )
+  
+  # launch
+  install(FILES
+    test/benchmark/benchmark_py.launch
+    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  )
+endif()
