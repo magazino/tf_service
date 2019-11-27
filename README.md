@@ -45,7 +45,7 @@ The Python bindings are wrapped in a standard `tf2_ros.BufferInterface`:
 ```python
 
 import rospy                                                         
-from simple_tf_buffer_client import SimpleBufferClient
+from simple_tf_buffer_server import SimpleBufferClient
 
 buffer = SimpleBufferClient("/simple_tf_buffer_server")
 

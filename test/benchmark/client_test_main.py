@@ -7,7 +7,7 @@ import sys
 import rospy
 import tf2_ros
 
-from simple_tf_buffer_client import SimpleBufferClient
+from simple_tf_buffer_server import SimpleBufferClient
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

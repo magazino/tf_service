@@ -4,8 +4,8 @@ import rospy
 import tf2_geometry_msgs
 import tf2_ros
 
-from simple_tf_buffer_client.decorators import translate_exceptions
-from simple_tf_buffer_server.client import SimpleBufferClientBinding
+from simple_tf_buffer_server import client_binding
+from simple_tf_buffer_server.decorators import translate_exceptions
 
 
 class SimpleBufferClient(tf2_ros.BufferInterface):
@@ -19,7 +19,8 @@ class SimpleBufferClient(tf2_ros.BufferInterface):
     def __init__(self, server_node_name):
         tf2_ros.BufferInterface.__init__(self)
         # All actual work is done by the C++ binding.
-        self.client = SimpleBufferClientBinding(server_node_name)
+        self.client = client_binding.SimpleBufferClientBinding(
+            server_node_name)
 
     @translate_exceptions
     def wait_for_server(self, timeout=rospy.Duration(-1)):

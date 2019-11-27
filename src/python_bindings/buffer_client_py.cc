@@ -1,3 +1,4 @@
+#include <signal.h>
 #include <memory>
 
 #include "pybind11/pybind11.h"
@@ -12,16 +13,33 @@
 namespace py = pybind11;
 namespace sbs = simple_tf_buffer_server;
 
+// Shuts down both roscpp and rospy. ¯\_(ツ)_/¯
+void ros_shutdown(int sig) {
+  ROS_DEBUG("Shutting down roscpp and rospy.");
+  ros::requestShutdown();
+  py::module::import("rospy").attr("signal_shutdown")("shutdown request");
+}
+
+// Wires up an internal node that allows us to create node handles.
+// Python defers signal handling until the next instruction is handled,
+// so it would be blocked by a long C++ call. Here, we can catch this directly
+// by installing a signal handler.
+static void ros_init_once() {
+  if (ros::isInitialized()) {
+    return;
+  }
+  auto init_option_bitflags =
+      (ros::init_options::AnonymousName | ros::init_options::NoSigintHandler);
+  ros::init(ros::M_string(), "simple_tf_buffer_client_py_internal",
+            init_option_bitflags);
+  signal(SIGINT, ros_shutdown);
+}
+
 // Python module "client", will be <pkg_name>.client after catkin build.
-PYBIND11_MODULE(client, m) {
+PYBIND11_MODULE(client_binding, m) {
   py::class_<sbs::SimpleBufferClient>(m, "SimpleBufferClientBinding")
       .def(py::init([](const std::string& server_node_name) {
-             // We need an internal node to create a node handle.
-             // Disable signal handling as it should be handled by rospy.
-             auto init_option_bitflags = (ros::init_options::AnonymousName |
-                                          ros::init_options::NoSigintHandler);
-             ros::init(ros::M_string(), "simple_tf_buffer_client_py_internal",
-                       init_option_bitflags);
+             ros_init_once();
              return std::make_unique<sbs::SimpleBufferClient>(server_node_name);
            }),
            /* doc strings for args */
@@ -66,6 +84,8 @@ PYBIND11_MODULE(client, m) {
       .def("wait_for_server", &sbs::SimpleBufferClient::waitForServer,
            /* doc strings for args */
            py::arg("timeout"));
+
+  m.def("ros_shutdown", &ros_shutdown);
 
   // Register exception translators to this module.
   // They are evaluated from last registered to first registered,

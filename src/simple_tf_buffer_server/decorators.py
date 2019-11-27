@@ -1,6 +1,6 @@
 import tf2_ros
 
-import simple_tf_buffer_server.client
+from simple_tf_buffer_server import client_binding
 
 
 # Decorator for class methods that translates internal exception types to
@@ -10,19 +10,19 @@ def translate_exceptions(method):
         try:
             return_value = method(obj, *args, **kwargs)
             return return_value
-        except simple_tf_buffer_server.client.ConnectivityException as e:
+        except client_binding.ConnectivityException as e:
             raise tf2_ros.ConnectivityException(str(e))
-        except simple_tf_buffer_server.client.ExtrapolationException as e:
+        except client_binding.ExtrapolationException as e:
             raise tf2_ros.ExtrapolationException(str(e))
-        except simple_tf_buffer_server.client.LookupException as e:
+        except client_binding.LookupException as e:
             raise tf2_ros.LookupException(str(e))
-        except simple_tf_buffer_server.client.ExtrapolationException as e:
+        except client_binding.ExtrapolationException as e:
             raise tf2_ros.ExtrapolationException(str(e))
-        except simple_tf_buffer_server.client.InvalidArgumentException as e:
+        except client_binding.InvalidArgumentException as e:
             raise tf2_ros.InvalidArgumentException(str(e))
-        except simple_tf_buffer_server.client.TimeoutException as e:
+        except client_binding.TimeoutException as e:
             raise tf2_ros.TimeoutException(str(e))
-        except simple_tf_buffer_server.client.TransformException as e:
+        except client_binding.TransformException as e:
             raise tf2_ros.TransformException(str(e))
 
     return translate
