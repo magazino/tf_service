@@ -5,11 +5,11 @@
     args="1 2 3 0 0 0 map odom" output="screen" required="true" />
 
   <!-- Server -->
-  <node name="simple_tf_buffer_server" pkg="simple_tf_buffer_server"
+  <node name="tf_service" pkg="tf_service"
         type="server" args="--num_threads 5" output="screen" required="true" />
 
   <!-- Test node -->
-  <test test-name="client_rostest" pkg="simple_tf_buffer_server"
+  <test test-name="client_rostest" pkg="tf_service"
         type="client_rostest" />
 
 </launch>

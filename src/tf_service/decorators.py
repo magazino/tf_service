@@ -1,6 +1,6 @@
 import tf2_ros
 
-from simple_tf_buffer_server import client_binding
+from tf_service import client_binding
 
 
 # Decorator for class methods that translates internal exception types to

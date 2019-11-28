@@ -7,7 +7,7 @@
 #include "ros/ros.h"
 #include "tf2_ros/buffer_interface.h"
 
-namespace simple_tf_buffer_server {
+namespace tf_service {
 
 class SimpleBufferClient : public tf2_ros::BufferInterface {
  public:
@@ -53,4 +53,4 @@ class SimpleBufferClient : public tf2_ros::BufferInterface {
   mutable ros::ServiceClient lookup_transform_client_;  // GUARDED_BY(mutex_);
 };
 
-}  // namespace simple_tf_buffer_server
+}  // namespace tf_service

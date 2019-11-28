@@ -4,8 +4,8 @@ import rospy
 import tf2_geometry_msgs
 import tf2_ros
 
-from simple_tf_buffer_server import client_binding
-from simple_tf_buffer_server.decorators import translate_exceptions
+from tf_service import client_binding
+from tf_service.decorators import translate_exceptions
 
 
 class SimpleBufferClient(tf2_ros.BufferInterface):

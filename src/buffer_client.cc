@@ -1,13 +1,14 @@
-#include "simple_tf_buffer_server/buffer_client.h"
+#include "tf_service/buffer_client.h"
+
 #include <chrono>
 
 #include "boost/filesystem.hpp"
 #include "tf2/exceptions.h"
 #include "tf2_msgs/TF2Error.h"
 
-#include "simple_tf_buffer_server/CanTransform.h"
-#include "simple_tf_buffer_server/LookupTransform.h"
-#include "simple_tf_buffer_server/constants.h"
+#include "tf_service/CanTransform.h"
+#include "tf_service/LookupTransform.h"
+#include "tf_service/constants.h"
 
 namespace {
 
@@ -45,19 +46,18 @@ void throwOnError(tf2_msgs::TF2Error& status) {
 
 }  // namespace
 
-namespace simple_tf_buffer_server {
+namespace tf_service {
 
 SimpleBufferClient::SimpleBufferClient(const std::string& server_node_name)
     : node_handle_(ros::NodeHandle()) {
   const std::string can_transform_service_full =
       join(server_node_name, kCanTransformServiceName);
-  can_transform_client_ =
-      node_handle_.serviceClient<simple_tf_buffer_server::CanTransform>(
-          can_transform_service_full, true /* persistent */);
+  can_transform_client_ = node_handle_.serviceClient<tf_service::CanTransform>(
+      can_transform_service_full, true /* persistent */);
   const std::string lookup_transform_service_full =
       join(server_node_name, kLookupTransformServiceName);
   lookup_transform_client_ =
-      node_handle_.serviceClient<simple_tf_buffer_server::LookupTransform>(
+      node_handle_.serviceClient<tf_service::LookupTransform>(
           lookup_transform_service_full, true /* persistent */);
 }
 
@@ -69,11 +69,10 @@ bool SimpleBufferClient::reconnect(ros::Duration timeout) {
     ROS_ERROR("Failed to connect to server.");
     return false;
   }
-  can_transform_client_ =
-      node_handle_.serviceClient<simple_tf_buffer_server::CanTransform>(
-          can_transform_client_.getService(), true /* persistent */);
+  can_transform_client_ = node_handle_.serviceClient<tf_service::CanTransform>(
+      can_transform_client_.getService(), true /* persistent */);
   lookup_transform_client_ =
-      node_handle_.serviceClient<simple_tf_buffer_server::LookupTransform>(
+      node_handle_.serviceClient<tf_service::LookupTransform>(
           lookup_transform_client_.getService(), true /* persistent */);
   ROS_DEBUG_STREAM("Connected to services "
                    << lookup_transform_client_.getService() << " & "
@@ -94,7 +93,7 @@ bool SimpleBufferClient::waitForServer(const ros::Duration timeout) {
 geometry_msgs::TransformStamped SimpleBufferClient::lookupTransform(
     const std::string& target_frame, const std::string& source_frame,
     const ros::Time& time, const ros::Duration timeout) const {
-  simple_tf_buffer_server::LookupTransform srv;
+  tf_service::LookupTransform srv;
   srv.request.target_frame = target_frame;
   srv.request.source_frame = source_frame;
   srv.request.time = time;
@@ -116,7 +115,7 @@ geometry_msgs::TransformStamped SimpleBufferClient::lookupTransform(
     const std::string& target_frame, const ros::Time& target_time,
     const std::string& source_frame, const ros::Time& source_time,
     const std::string& fixed_frame, const ros::Duration timeout) const {
-  simple_tf_buffer_server::LookupTransform srv;
+  tf_service::LookupTransform srv;
   srv.request.target_frame = target_frame;
   srv.request.target_time = target_time;
   srv.request.source_frame = source_frame;
@@ -141,7 +140,7 @@ bool SimpleBufferClient::canTransform(const std::string& target_frame,
                                       const ros::Time& time,
                                       const ros::Duration timeout,
                                       std::string* errstr) const {
-  simple_tf_buffer_server::CanTransform srv;
+  tf_service::CanTransform srv;
   srv.request.target_frame = target_frame;
   srv.request.source_frame = source_frame;
   srv.request.time = time;
@@ -171,7 +170,7 @@ bool SimpleBufferClient::canTransform(const std::string& target_frame,
                                       const std::string& fixed_frame,
                                       const ros::Duration timeout,
                                       std::string* errstr) const {
-  simple_tf_buffer_server::CanTransform srv;
+  tf_service::CanTransform srv;
   srv.request.target_frame = target_frame;
   srv.request.target_time = target_time;
   srv.request.source_frame = source_frame;
@@ -196,4 +195,4 @@ bool SimpleBufferClient::canTransform(const std::string& target_frame,
   return srv.response.can_transform;
 }
 
-}  // namespace simple_tf_buffer_server
+}  // namespace tf_service

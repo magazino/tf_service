@@ -7,10 +7,10 @@
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
 
-#include "simple_tf_buffer_server/CanTransform.h"
-#include "simple_tf_buffer_server/LookupTransform.h"
+#include "tf_service/CanTransform.h"
+#include "tf_service/LookupTransform.h"
 
-namespace simple_tf_buffer_server {
+namespace tf_service {
 
 // Exposes TF lookup as a ROS service.
 // Since TF buffer lookups are thread-safe, this class can be used with parallel
@@ -21,13 +21,11 @@ class SimpleBufferServer {
 
   SimpleBufferServer(std::shared_ptr<ros::NodeHandle> private_node_handle);
 
-  bool handleLookupTransform(
-      simple_tf_buffer_server::LookupTransformRequest& request,
-      simple_tf_buffer_server::LookupTransformResponse& response);
+  bool handleLookupTransform(tf_service::LookupTransformRequest& request,
+                             tf_service::LookupTransformResponse& response);
 
-  bool handleCanTransform(
-      simple_tf_buffer_server::CanTransformRequest& request,
-      simple_tf_buffer_server::CanTransformResponse& response);
+  bool handleCanTransform(tf_service::CanTransformRequest& request,
+                          tf_service::CanTransformResponse& response);
 
  private:
   std::shared_ptr<ros::NodeHandle> private_node_handle_;
@@ -36,4 +34,4 @@ class SimpleBufferServer {
   std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
 };
 
-}  // namespace simple_tf_buffer_server
+}  // namespace tf_service

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(simple_tf_buffer_server)
+project(tf_service)
 
 add_compile_options(-std=c++14 -Wall -Wpedantic -O2)
 if (NOT CMAKE_BUILD_TYPE)

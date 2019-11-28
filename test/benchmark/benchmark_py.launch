@@ -11,7 +11,7 @@
 
   <!-- Server -->
   <group unless="$(arg use_old_version)" >
-    <node name="simple_tf_buffer_server" pkg="simple_tf_buffer_server"
+    <node name="tf_service" pkg="tf_service"
           type="server" args="--num_threads 5" output="screen"/>
   </group>
   <group if="$(arg use_old_version)" >
@@ -19,31 +19,31 @@
   </group>
 
   <!-- Clients -->
-  <node name="client_1" pkg="simple_tf_buffer_server" required="true"
+  <node name="client_1" pkg="tf_service" required="true"
         type="client_test_main.py" args="
         --lookup_frequency 10
         $(arg flags)
         " output="screen"/>
 
-  <node name="client_2" pkg="simple_tf_buffer_server" required="true"
+  <node name="client_2" pkg="tf_service" required="true"
         type="client_test_main.py" args="
         --lookup_frequency 10
         $(arg flags)
         " output="screen"/>
 
-  <node name="client_3" pkg="simple_tf_buffer_server" required="true"
+  <node name="client_3" pkg="tf_service" required="true"
         type="client_test_main.py" args="
         --lookup_frequency 10
         $(arg flags)
         " output="screen"/>
 
-  <node name="client_4" pkg="simple_tf_buffer_server" required="true"
+  <node name="client_4" pkg="tf_service" required="true"
         type="client_test_main.py" args="
         --lookup_frequency 10
         $(arg flags)
         " output="screen"/>
 
-  <node name="client_5" pkg="simple_tf_buffer_server" required="true"
+  <node name="client_5" pkg="tf_service" required="true"
         type="client_test_main.py" args="
         --lookup_frequency 10
         $(arg flags)

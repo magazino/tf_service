@@ -1,4 +1,4 @@
-# simple_tf_buffer_server
+# tf_service
 
 TF buffer server / client implementation based on ROS services.
 
@@ -19,8 +19,8 @@ Implemented in C++ and Python bindings.
 #### Testing
 
 ```
-magclone simple_tf_buffer_server
-git -C simple_tf_buffer_server/ submodule update --init
+magclone tf_service
+git -C tf_service/ submodule update --init
 ci
 ```
 
@@ -28,7 +28,7 @@ ci
 ## server
 
 ```
-rosrun simple_tf_buffer_server server --num_threads 10
+rosrun tf_service server --num_threads 10
 ```
 
 Starts the TF server node. The number of threads limits the number of request queues the server can handle in parallel.
@@ -45,9 +45,9 @@ The Python bindings are wrapped in a standard `tf2_ros.BufferInterface`:
 ```python
 
 import rospy                                                         
-from simple_tf_buffer_server import SimpleBufferClient
+from tf_service import SimpleBufferClient
 
-buffer = SimpleBufferClient("/simple_tf_buffer_server")
+buffer = SimpleBufferClient("/tf_service")
 
 # Use it like any other TF2 buffer.
 if buffer.can_transform("map", "odom", rospy.Time(0), rospy.Duration(5)):
@@ -59,13 +59,13 @@ if buffer.can_transform("map", "odom", rospy.Time(0), rospy.Duration(5)):
 Implements a standard `tf2_ros::BufferInterface`:
 
 ```cpp
-#include "simple_tf_buffer_server/buffer_client.h"
+#include "tf_service/buffer_client.h"
 
-namespace sbs = simple_tf_buffer_server;
+namespace tfs = tf_service;
 
 // ...
 
-sbs::SimpleBufferClient buffer("/simple_tf_buffer_server");
+tfs::SimpleBufferClient buffer("/tf_service");
 
 // Use it like any other TF2 buffer.
 std::string errstr;
@@ -80,11 +80,11 @@ The Python client implementation is much more efficient than the old `tf2_ros.Bu
 
 The test scenario are 5 clients doing requests at 10Hz. Compare the resource consumption of:
 ```
-roslaunch simple_tf_buffer_server benchmark_py.launch use_old_version:=true
+roslaunch tf_service benchmark_py.launch use_old_version:=true
 ```
 with the new implementation from this package:
 ```
-roslaunch simple_tf_buffer_server benchmark_py.launch use_old_version:=false
+roslaunch tf_service benchmark_py.launch use_old_version:=false
 ```
 
 ## Limitations

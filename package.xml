@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>simple_tf_buffer_server</name>
+  <name>tf_service</name>
   <version>0.1.0</version>
-  <description>The simple_tf_buffer_server package</description>
+  <description>The tf_service package</description>
 
   <author email="grupp@magazino.eu">Michael Grupp</author>
   <maintainer email="grupp@magazino.eu">Michael Grupp</maintainer>

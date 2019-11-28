@@ -1,11 +1,11 @@
-#include "simple_tf_buffer_server/buffer_server.h"
+#include "tf_service/buffer_server.h"
 
 #include "geometry_msgs/TransformStamped.h"
-#include "simple_tf_buffer_server/constants.h"
 #include "tf2_msgs/TF2Error.h"
 
+#include "tf_service/constants.h"
 
-namespace simple_tf_buffer_server {
+namespace tf_service {
 
 SimpleBufferServer::SimpleBufferServer(
     std::shared_ptr<ros::NodeHandle> private_node_handle)
@@ -20,8 +20,8 @@ SimpleBufferServer::SimpleBufferServer(
 }
 
 bool SimpleBufferServer::handleLookupTransform(
-    simple_tf_buffer_server::LookupTransformRequest& request,
-    simple_tf_buffer_server::LookupTransformResponse& response) {
+    tf_service::LookupTransformRequest& request,
+    tf_service::LookupTransformResponse& response) {
   // TODO make sure not to block forever if someone sends a long timeout.
   // TODO move to client?
   if (request.timeout > ros::Duration(kMaxAllowedTimeout)) {
@@ -74,8 +74,8 @@ bool SimpleBufferServer::handleLookupTransform(
 }
 
 bool SimpleBufferServer::handleCanTransform(
-    simple_tf_buffer_server::CanTransformRequest& request,
-    simple_tf_buffer_server::CanTransformResponse& response) {
+    tf_service::CanTransformRequest& request,
+    tf_service::CanTransformResponse& response) {
   if (request.advanced) {
     response.can_transform = tf_buffer_.canTransform(
         request.target_frame, request.target_time, request.source_frame,
@@ -89,4 +89,4 @@ bool SimpleBufferServer::handleCanTransform(
   return true;
 }
 
-}  // namespace simple_tf_buffer_server
+}  // namespace tf_service

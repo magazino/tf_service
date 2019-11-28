@@ -2,22 +2,22 @@
 #include <memory>
 
 #include "pybind11/pybind11.h"
-
 #include "ros/ros.h"
-#include "simple_tf_buffer_server/buffer_client.h"
 
 #include "casts/ros_duration.h"
 #include "casts/ros_time.h"
 #include "casts/transform_stamped.h"
+#include "tf_service/buffer_client.h"
 
 namespace py = pybind11;
-namespace sbs = simple_tf_buffer_server;
+namespace tfs = tf_service;
 
 // Shuts down both roscpp and rospy. ¯\_(ツ)_/¯
 void ros_shutdown(int sig) {
   ROS_DEBUG("Shutting down roscpp and rospy.");
   ros::requestShutdown();
   py::module::import("rospy").attr("signal_shutdown")("shutdown request");
+  ROS_INFO("bla");
 }
 
 // Wires up an internal node that allows us to create node handles.
@@ -37,17 +37,17 @@ static void ros_init_once() {
 
 // Python module "client", will be <pkg_name>.client after catkin build.
 PYBIND11_MODULE(client_binding, m) {
-  py::class_<sbs::SimpleBufferClient>(m, "SimpleBufferClientBinding")
+  py::class_<tfs::SimpleBufferClient>(m, "SimpleBufferClientBinding")
       .def(py::init([](const std::string& server_node_name) {
              ros_init_once();
-             return std::make_unique<sbs::SimpleBufferClient>(server_node_name);
+             return std::make_unique<tfs::SimpleBufferClient>(server_node_name);
            }),
            /* doc strings for args */
            py::arg("server_node_name"))
       .def("can_transform",
            py::overload_cast<const std::string&, const std::string&,
                              const ros::Time&, ros::Duration, std::string*>(
-               &sbs::SimpleBufferClient::canTransform, py::const_),
+               &tfs::SimpleBufferClient::canTransform, py::const_),
            /* doc strings for args */
            py::arg("target_frame"), py::arg("source_frame"), py::arg("time"),
            py::arg("timeout"), py::arg("errstr"))
@@ -55,7 +55,7 @@ PYBIND11_MODULE(client_binding, m) {
            py::overload_cast<const std::string&, const ros::Time&,
                              const std::string&, const ros::Time&,
                              const std::string&, ros::Duration, std::string*>(
-               &sbs::SimpleBufferClient::canTransform, py::const_),
+               &tfs::SimpleBufferClient::canTransform, py::const_),
            /* doc strings for args */
            py::arg("target_frame"), py::arg("target_time"),
            py::arg("source_frame"), py::arg("source_time"),
@@ -63,7 +63,7 @@ PYBIND11_MODULE(client_binding, m) {
       .def("lookup_transform",
            py::overload_cast<const std::string&, const std::string&,
                              const ros::Time&, ros::Duration>(
-               &sbs::SimpleBufferClient::lookupTransform, py::const_),
+               &tfs::SimpleBufferClient::lookupTransform, py::const_),
            /* doc strings for args */
            py::arg("target_frame"), py::arg("source_frame"), py::arg("time"),
            py::arg("timeout"), py::return_value_policy::move)
@@ -71,17 +71,17 @@ PYBIND11_MODULE(client_binding, m) {
            py::overload_cast<const std::string&, const ros::Time&,
                              const std::string&, const ros::Time&,
                              const std::string&, ros::Duration>(
-               &sbs::SimpleBufferClient::lookupTransform, py::const_),
+               &tfs::SimpleBufferClient::lookupTransform, py::const_),
            /* doc strings for args */
            py::arg("target_frame"), py::arg("target_time"),
            py::arg("source_frame"), py::arg("source_time"),
            py::arg("fixed_frame"), py::arg("timeout"),
            py::return_value_policy::move)
-      .def("is_connected", &sbs::SimpleBufferClient::isConnected)
-      .def("reconnect", &sbs::SimpleBufferClient::reconnect,
+      .def("is_connected", &tfs::SimpleBufferClient::isConnected)
+      .def("reconnect", &tfs::SimpleBufferClient::reconnect,
            /* doc strings for args */
            py::arg("timeout"))
-      .def("wait_for_server", &sbs::SimpleBufferClient::waitForServer,
+      .def("wait_for_server", &tfs::SimpleBufferClient::waitForServer,
            /* doc strings for args */
            py::arg("timeout"));
 

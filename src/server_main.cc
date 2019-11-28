@@ -2,11 +2,11 @@
 #include <memory>
 
 #include "ros/ros.h"
-#include "simple_tf_buffer_server/buffer_server.h"
+#include "tf_service/buffer_server.h"
 
 #include "boost/program_options.hpp"
 
-namespace sbs = simple_tf_buffer_server;
+namespace tfs = tf_service;
 namespace po = boost::program_options;
 
 int main(int argc, char** argv) {
@@ -28,11 +28,11 @@ int main(int argc, char** argv) {
     return EXIT_FAILURE;
   }
 
-  ros::init(argc, argv, "simple_tf_buffer_server");
+  ros::init(argc, argv, "tf_service");
   auto private_node_handle = std::make_shared<ros::NodeHandle>("~");
 
   ROS_INFO_STREAM("Starting server with " << num_threads << " handler threads");
-  sbs::SimpleBufferServer server(private_node_handle);
+  tfs::SimpleBufferServer server(private_node_handle);
   ros::AsyncSpinner spinner(num_threads);
   spinner.start();
   ros::waitForShutdown();

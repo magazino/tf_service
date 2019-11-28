@@ -7,7 +7,7 @@ import sys
 import rospy
 import tf2_ros
 
-from simple_tf_buffer_server import SimpleBufferClient
+from tf_service import SimpleBufferClient
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -20,7 +20,7 @@ if __name__ == "__main__":
     if args.use_old_version:
         buffer = tf2_ros.BufferClient("/tf2_buffer_server")
     else:
-        buffer = SimpleBufferClient("/simple_tf_buffer_server")
+        buffer = SimpleBufferClient("/tf_service")
     buffer.wait_for_server()
 
     rate = rospy.Rate(args.lookup_frequency)
