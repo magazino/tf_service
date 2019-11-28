@@ -98,6 +98,10 @@ target_link_libraries(client_binding PRIVATE
   ${catkin_LIBRARIES}
   ${Boost_LIBRARIES}
 )
+# See: http://wiki.ros.org/catkin/CMakeLists.txt#Custom_output_directory
+set_target_properties(client_binding PROPERTIES
+  LIBRARY_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_PYTHON_DESTINATION}
+)
 
 # server executable
 add_executable(server src/server_main.cc)
@@ -130,7 +134,8 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 install(TARGETS client_binding
-  DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
 )
 
 install(DIRECTORY include/
@@ -150,9 +155,12 @@ install(DIRECTORY include/
 ## Testing ##
 #############
 
-## rostests with gtest executables
+## rostests
 if(CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
+  # Python
+  add_rostest(test/client_rostest_py.launch DEPENDENCIES ${PROJECT_NAME} server client_binding)
+  # C++
   add_rostest_gtest(client_rostest test/client_rostest.launch test/client_rostest.cc)
   target_link_libraries(client_rostest ${PROJECT_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 endif()
