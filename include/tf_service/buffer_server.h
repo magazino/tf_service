@@ -15,11 +15,11 @@ namespace tf_service {
 // Exposes TF lookup as a ROS service.
 // Since TF buffer lookups are thread-safe, this class can be used with parallel
 // callback handlers.
-class SimpleBufferServer {
+class Server {
  public:
-  SimpleBufferServer() = delete;
+  Server() = delete;
 
-  SimpleBufferServer(std::shared_ptr<ros::NodeHandle> private_node_handle);
+  Server(std::shared_ptr<ros::NodeHandle> private_node_handle);
 
   bool handleLookupTransform(tf_service::LookupTransformRequest& request,
                              tf_service::LookupTransformResponse& response);

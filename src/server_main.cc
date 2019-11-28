@@ -6,7 +6,6 @@
 
 #include "boost/program_options.hpp"
 
-namespace tfs = tf_service;
 namespace po = boost::program_options;
 
 int main(int argc, char** argv) {
@@ -32,7 +31,7 @@ int main(int argc, char** argv) {
   auto private_node_handle = std::make_shared<ros::NodeHandle>("~");
 
   ROS_INFO_STREAM("Starting server with " << num_threads << " handler threads");
-  tfs::SimpleBufferServer server(private_node_handle);
+  tf_service::Server server(private_node_handle);
   ros::AsyncSpinner spinner(num_threads);
   spinner.start();
   ros::waitForShutdown();

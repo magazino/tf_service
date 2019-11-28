@@ -4,7 +4,6 @@
 
 #include "boost/program_options.hpp"
 
-namespace tfs = tf_service;
 namespace po = boost::program_options;
 
 int main(int argc, char** argv) {
@@ -28,7 +27,7 @@ int main(int argc, char** argv) {
 
   ros::init(argc, argv, "client_test");
 
-  tfs::SimpleBufferClient buffer("/tf_service");
+  tf_service::BufferClient buffer("/tf_service");
 
   ros::Rate rate(ros::Duration(1. / frequency));
   while (ros::ok()) {

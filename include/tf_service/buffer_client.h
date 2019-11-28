@@ -9,13 +9,13 @@
 
 namespace tf_service {
 
-class SimpleBufferClient : public tf2_ros::BufferInterface {
+class BufferClient : public tf2_ros::BufferInterface {
  public:
-  SimpleBufferClient() = delete;
+  BufferClient() = delete;
 
-  SimpleBufferClient(const std::string& server_node_name);
+  BufferClient(const std::string& server_node_name);
 
-  ~SimpleBufferClient();
+  ~BufferClient();
 
   geometry_msgs::TransformStamped lookupTransform(
       const std::string& target_frame, const std::string& source_frame,

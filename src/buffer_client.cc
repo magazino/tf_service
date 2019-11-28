@@ -48,7 +48,7 @@ void throwOnError(tf2_msgs::TF2Error& status) {
 
 namespace tf_service {
 
-SimpleBufferClient::SimpleBufferClient(const std::string& server_node_name)
+BufferClient::BufferClient(const std::string& server_node_name)
     : node_handle_(ros::NodeHandle()) {
   const std::string can_transform_service_full =
       join(server_node_name, kCanTransformServiceName);
@@ -61,9 +61,9 @@ SimpleBufferClient::SimpleBufferClient(const std::string& server_node_name)
           lookup_transform_service_full, true /* persistent */);
 }
 
-SimpleBufferClient::~SimpleBufferClient() { node_handle_.shutdown(); }
+BufferClient::~BufferClient() { node_handle_.shutdown(); }
 
-bool SimpleBufferClient::reconnect(ros::Duration timeout) {
+bool BufferClient::reconnect(ros::Duration timeout) {
   std::lock_guard<std::mutex> guard(mutex_);
   if (!can_transform_client_.waitForExistence(timeout)) {
     ROS_ERROR("Failed to connect to server.");
@@ -80,17 +80,17 @@ bool SimpleBufferClient::reconnect(ros::Duration timeout) {
   return true;
 }
 
-bool SimpleBufferClient::isConnected() const {
+bool BufferClient::isConnected() const {
   std::lock_guard<std::mutex> guard(mutex_);
   return (can_transform_client_.isValid() &&
           lookup_transform_client_.isValid());
 }
 
-bool SimpleBufferClient::waitForServer(const ros::Duration timeout) {
+bool BufferClient::waitForServer(const ros::Duration timeout) {
   return isConnected() ? true : reconnect(timeout);
 }
 
-geometry_msgs::TransformStamped SimpleBufferClient::lookupTransform(
+geometry_msgs::TransformStamped BufferClient::lookupTransform(
     const std::string& target_frame, const std::string& source_frame,
     const ros::Time& time, const ros::Duration timeout) const {
   tf_service::LookupTransform srv;
@@ -111,7 +111,7 @@ geometry_msgs::TransformStamped SimpleBufferClient::lookupTransform(
   return srv.response.transform;
 }
 
-geometry_msgs::TransformStamped SimpleBufferClient::lookupTransform(
+geometry_msgs::TransformStamped BufferClient::lookupTransform(
     const std::string& target_frame, const ros::Time& target_time,
     const std::string& source_frame, const ros::Time& source_time,
     const std::string& fixed_frame, const ros::Duration timeout) const {
@@ -135,11 +135,11 @@ geometry_msgs::TransformStamped SimpleBufferClient::lookupTransform(
   return srv.response.transform;
 }
 
-bool SimpleBufferClient::canTransform(const std::string& target_frame,
-                                      const std::string& source_frame,
-                                      const ros::Time& time,
-                                      const ros::Duration timeout,
-                                      std::string* errstr) const {
+bool BufferClient::canTransform(const std::string& target_frame,
+                                const std::string& source_frame,
+                                const ros::Time& time,
+                                const ros::Duration timeout,
+                                std::string* errstr) const {
   tf_service::CanTransform srv;
   srv.request.target_frame = target_frame;
   srv.request.source_frame = source_frame;
@@ -163,13 +163,13 @@ bool SimpleBufferClient::canTransform(const std::string& target_frame,
   return srv.response.can_transform;
 }
 
-bool SimpleBufferClient::canTransform(const std::string& target_frame,
-                                      const ros::Time& target_time,
-                                      const std::string& source_frame,
-                                      const ros::Time& source_time,
-                                      const std::string& fixed_frame,
-                                      const ros::Duration timeout,
-                                      std::string* errstr) const {
+bool BufferClient::canTransform(const std::string& target_frame,
+                                const ros::Time& target_time,
+                                const std::string& source_frame,
+                                const ros::Time& source_time,
+                                const std::string& fixed_frame,
+                                const ros::Duration timeout,
+                                std::string* errstr) const {
   tf_service::CanTransform srv;
   srv.request.target_frame = target_frame;
   srv.request.target_time = target_time;

@@ -8,22 +8,20 @@ constexpr char kExpectedServerName[] = "/tf_service";
 constexpr char kExpectedTargetFrame[] = "map";
 constexpr char kExpectedSourceFrame[] = "odom";
 
-namespace tfs = tf_service;
-
 TEST(ClientRostest, waitForServerSucceeds) {
-  tfs::SimpleBufferClient buffer(kExpectedServerName);
+  tf_service::BufferClient buffer(kExpectedServerName);
   EXPECT_TRUE(buffer.waitForServer(ros::Duration(0.1)));
   EXPECT_TRUE(buffer.isConnected());
 }
 
 TEST(ClientRostest, waitForServerFails) {
-  tfs::SimpleBufferClient buffer("/wrong_server_name");
+  tf_service::BufferClient buffer("/wrong_server_name");
   EXPECT_FALSE(buffer.waitForServer(ros::Duration(0.1)));
   EXPECT_FALSE(buffer.isConnected());
 }
 
 TEST(ClientRostest, canTransform) {
-  tfs::SimpleBufferClient buffer(kExpectedServerName);
+  tf_service::BufferClient buffer(kExpectedServerName);
   EXPECT_TRUE(buffer.waitForServer(ros::Duration(0.1)));
   EXPECT_TRUE(buffer.canTransform(kExpectedTargetFrame, kExpectedSourceFrame,
                                   ros::Time(0), ros::Duration(0.1)));
@@ -32,7 +30,7 @@ TEST(ClientRostest, canTransform) {
 }
 
 TEST(ClientRostest, canTransformAdvanced) {
-  tfs::SimpleBufferClient buffer(kExpectedServerName);
+  tf_service::BufferClient buffer(kExpectedServerName);
   EXPECT_TRUE(buffer.waitForServer(ros::Duration(0.1)));
   EXPECT_TRUE(buffer.canTransform(kExpectedTargetFrame, ros::Time(0),
                                   kExpectedSourceFrame, ros::Time(0),
@@ -42,7 +40,7 @@ TEST(ClientRostest, canTransformAdvanced) {
 }
 
 TEST(ClientRostest, lookupTransform) {
-  tfs::SimpleBufferClient buffer(kExpectedServerName);
+  tf_service::BufferClient buffer(kExpectedServerName);
   EXPECT_TRUE(buffer.waitForServer(ros::Duration(0.1)));
   EXPECT_NO_FATAL_FAILURE(
       buffer.lookupTransform(kExpectedTargetFrame, kExpectedSourceFrame,
@@ -53,7 +51,7 @@ TEST(ClientRostest, lookupTransform) {
 }
 
 TEST(ClientRostest, lookupTransformAdvanced) {
-  tfs::SimpleBufferClient buffer(kExpectedServerName);
+  tf_service::BufferClient buffer(kExpectedServerName);
   EXPECT_TRUE(buffer.waitForServer(ros::Duration(0.1)));
   EXPECT_NO_FATAL_FAILURE(buffer.lookupTransform(
       kExpectedTargetFrame, ros::Time(0), kExpectedSourceFrame, ros::Time(0),

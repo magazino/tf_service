@@ -37,17 +37,17 @@ static void ros_init_once() {
 
 // Python module "client", will be <pkg_name>.client after catkin build.
 PYBIND11_MODULE(client_binding, m) {
-  py::class_<tfs::SimpleBufferClient>(m, "SimpleBufferClientBinding")
+  py::class_<tfs::BufferClient>(m, "BufferClientBinding")
       .def(py::init([](const std::string& server_node_name) {
              ros_init_once();
-             return std::make_unique<tfs::SimpleBufferClient>(server_node_name);
+             return std::make_unique<tfs::BufferClient>(server_node_name);
            }),
            /* doc strings for args */
            py::arg("server_node_name"))
       .def("can_transform",
            py::overload_cast<const std::string&, const std::string&,
                              const ros::Time&, ros::Duration, std::string*>(
-               &tfs::SimpleBufferClient::canTransform, py::const_),
+               &tfs::BufferClient::canTransform, py::const_),
            /* doc strings for args */
            py::arg("target_frame"), py::arg("source_frame"), py::arg("time"),
            py::arg("timeout"), py::arg("errstr"))
@@ -55,7 +55,7 @@ PYBIND11_MODULE(client_binding, m) {
            py::overload_cast<const std::string&, const ros::Time&,
                              const std::string&, const ros::Time&,
                              const std::string&, ros::Duration, std::string*>(
-               &tfs::SimpleBufferClient::canTransform, py::const_),
+               &tfs::BufferClient::canTransform, py::const_),
            /* doc strings for args */
            py::arg("target_frame"), py::arg("target_time"),
            py::arg("source_frame"), py::arg("source_time"),
@@ -63,7 +63,7 @@ PYBIND11_MODULE(client_binding, m) {
       .def("lookup_transform",
            py::overload_cast<const std::string&, const std::string&,
                              const ros::Time&, ros::Duration>(
-               &tfs::SimpleBufferClient::lookupTransform, py::const_),
+               &tfs::BufferClient::lookupTransform, py::const_),
            /* doc strings for args */
            py::arg("target_frame"), py::arg("source_frame"), py::arg("time"),
            py::arg("timeout"), py::return_value_policy::move)
@@ -71,17 +71,17 @@ PYBIND11_MODULE(client_binding, m) {
            py::overload_cast<const std::string&, const ros::Time&,
                              const std::string&, const ros::Time&,
                              const std::string&, ros::Duration>(
-               &tfs::SimpleBufferClient::lookupTransform, py::const_),
+               &tfs::BufferClient::lookupTransform, py::const_),
            /* doc strings for args */
            py::arg("target_frame"), py::arg("target_time"),
            py::arg("source_frame"), py::arg("source_time"),
            py::arg("fixed_frame"), py::arg("timeout"),
            py::return_value_policy::move)
-      .def("is_connected", &tfs::SimpleBufferClient::isConnected)
-      .def("reconnect", &tfs::SimpleBufferClient::reconnect,
+      .def("is_connected", &tfs::BufferClient::isConnected)
+      .def("reconnect", &tfs::BufferClient::reconnect,
            /* doc strings for args */
            py::arg("timeout"))
-      .def("wait_for_server", &tfs::SimpleBufferClient::waitForServer,
+      .def("wait_for_server", &tfs::BufferClient::waitForServer,
            /* doc strings for args */
            py::arg("timeout"));
 

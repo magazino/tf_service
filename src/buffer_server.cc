@@ -7,19 +7,17 @@
 
 namespace tf_service {
 
-SimpleBufferServer::SimpleBufferServer(
-    std::shared_ptr<ros::NodeHandle> private_node_handle)
+Server::Server(std::shared_ptr<ros::NodeHandle> private_node_handle)
     : private_node_handle_(private_node_handle) {
   tf_buffer_.setUsingDedicatedThread(true);
   tf_listener_ = std::make_unique<tf2_ros::TransformListener>(tf_buffer_);
   service_servers_.push_back(private_node_handle_->advertiseService(
-      kLookupTransformServiceName, &SimpleBufferServer::handleLookupTransform,
-      this));
+      kLookupTransformServiceName, &Server::handleLookupTransform, this));
   service_servers_.push_back(private_node_handle_->advertiseService(
-      kCanTransformServiceName, &SimpleBufferServer::handleCanTransform, this));
+      kCanTransformServiceName, &Server::handleCanTransform, this));
 }
 
-bool SimpleBufferServer::handleLookupTransform(
+bool Server::handleLookupTransform(
     tf_service::LookupTransformRequest& request,
     tf_service::LookupTransformResponse& response) {
   // TODO make sure not to block forever if someone sends a long timeout.
@@ -73,9 +71,8 @@ bool SimpleBufferServer::handleLookupTransform(
   return true;
 }
 
-bool SimpleBufferServer::handleCanTransform(
-    tf_service::CanTransformRequest& request,
-    tf_service::CanTransformResponse& response) {
+bool Server::handleCanTransform(tf_service::CanTransformRequest& request,
+                                tf_service::CanTransformResponse& response) {
   if (request.advanced) {
     response.can_transform = tf_buffer_.canTransform(
         request.target_frame, request.target_time, request.source_frame,

@@ -6,7 +6,7 @@ import unittest
 import rospy
 import tf2_ros
 
-from tf_service import SimpleBufferClient
+import tf_service
 
 # See rostest launch file.
 EXPECTED_SERVER_NAME = "/tf_service"
@@ -16,17 +16,17 @@ EXPECTED_SOURCE_FRAME = "odom"
 
 class ClientRostest(unittest.TestCase):
     def test_wait_for_server_succeeds(self):
-        buffer = SimpleBufferClient(EXPECTED_SERVER_NAME)
+        buffer = tf_service.BufferClient(EXPECTED_SERVER_NAME)
         self.assertTrue(buffer.wait_for_server(rospy.Duration(0.1)))
         self.assertTrue(buffer.client.is_connected())
 
     def test_wait_for_server_fails(self):
-        buffer = SimpleBufferClient("/wrong_server_name")
+        buffer = tf_service.BufferClient("/wrong_server_name")
         self.assertFalse(buffer.wait_for_server(rospy.Duration(0.1)))
         self.assertFalse(buffer.client.is_connected())
 
     def test_can_transform(self):
-        buffer = SimpleBufferClient(EXPECTED_SERVER_NAME)
+        buffer = tf_service.BufferClient(EXPECTED_SERVER_NAME)
         self.assertTrue(buffer.wait_for_server(rospy.Duration(0.1)))
         self.assertTrue(
             buffer.can_transform(EXPECTED_TARGET_FRAME, EXPECTED_SOURCE_FRAME,
@@ -36,7 +36,7 @@ class ClientRostest(unittest.TestCase):
                                  rospy.Duration(0.1)))
 
     def test_can_transform_advanced(self):
-        buffer = SimpleBufferClient(EXPECTED_SERVER_NAME)
+        buffer = tf_service.BufferClient(EXPECTED_SERVER_NAME)
         self.assertTrue(buffer.wait_for_server(rospy.Duration(0.1)))
         self.assertTrue(
             buffer.can_transform_full(EXPECTED_TARGET_FRAME,
@@ -49,7 +49,7 @@ class ClientRostest(unittest.TestCase):
                                       rospy.Duration(0.1)))
 
     def test_lookup_transform(self):
-        buffer = SimpleBufferClient(EXPECTED_SERVER_NAME)
+        buffer = tf_service.BufferClient(EXPECTED_SERVER_NAME)
         self.assertTrue(buffer.wait_for_server(rospy.Duration(0.1)))
         buffer.lookup_transform(EXPECTED_TARGET_FRAME, EXPECTED_SOURCE_FRAME,
                                 rospy.Time(0), rospy.Duration(0.1))
@@ -58,7 +58,7 @@ class ClientRostest(unittest.TestCase):
                                     rospy.Duration(0.1))
 
     def test_lookup_transform_advanced(self):
-        buffer = SimpleBufferClient(EXPECTED_SERVER_NAME)
+        buffer = tf_service.BufferClient(EXPECTED_SERVER_NAME)
         self.assertTrue(buffer.wait_for_server(rospy.Duration(0.1)))
         buffer.lookup_transform_full(EXPECTED_TARGET_FRAME,
                                      rospy.Time(0), EXPECTED_SOURCE_FRAME,

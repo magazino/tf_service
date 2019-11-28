@@ -9,7 +9,7 @@
         type="server" args="--num_threads 5" output="screen" required="true" />
 
   <!-- Test node -->
-  <test test-name="client_rostest" pkg="tf_service"
+  <test test-name="client_rostest_py" pkg="tf_service"
         type="client_rostest.py" />
 
 </launch>

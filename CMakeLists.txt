@@ -62,7 +62,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES simple_tf_buffer_client
+  LIBRARIES ${PROJECT_NAME}
   CATKIN_DEPENDS ${PACKAGE_DEPENDENCIES}
 )
 
@@ -158,8 +158,14 @@ install(DIRECTORY include/
 ## rostests
 if(CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
+  
   # Python
+  install(PROGRAMS
+    test/client_rostest.py
+    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  )
   add_rostest(test/client_rostest_py.launch DEPENDENCIES ${PROJECT_NAME} server client_binding)
+  
   # C++
   add_rostest_gtest(client_rostest test/client_rostest.launch test/client_rostest.cc)
   target_link_libraries(client_rostest ${PROJECT_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES})

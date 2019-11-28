@@ -1,1 +1,1 @@
-from buffer_client import SimpleBufferClient
+from client import BufferClient

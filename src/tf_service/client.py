@@ -8,7 +8,7 @@ from tf_service import client_binding
 from tf_service.decorators import translate_exceptions
 
 
-class SimpleBufferClient(tf2_ros.BufferInterface):
+class BufferClient(tf2_ros.BufferInterface):
     """
     Extends the raw C++ binding to the full Python tf2_ros.BufferInterface,
     adding methods like transform() that don't exist in the C++ interface.
@@ -19,8 +19,7 @@ class SimpleBufferClient(tf2_ros.BufferInterface):
     def __init__(self, server_node_name):
         tf2_ros.BufferInterface.__init__(self)
         # All actual work is done by the C++ binding.
-        self.client = client_binding.SimpleBufferClientBinding(
-            server_node_name)
+        self.client = client_binding.BufferClientBinding(server_node_name)
 
     @translate_exceptions
     def wait_for_server(self, timeout=rospy.Duration(-1)):

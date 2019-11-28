@@ -45,9 +45,9 @@ The Python bindings are wrapped in a standard `tf2_ros.BufferInterface`:
 ```python
 
 import rospy                                                         
-from tf_service import SimpleBufferClient
+import tf_service
 
-buffer = SimpleBufferClient("/tf_service")
+buffer = tf_service.BufferClient("/tf_service")
 
 # Use it like any other TF2 buffer.
 if buffer.can_transform("map", "odom", rospy.Time(0), rospy.Duration(5)):
@@ -61,11 +61,9 @@ Implements a standard `tf2_ros::BufferInterface`:
 ```cpp
 #include "tf_service/buffer_client.h"
 
-namespace tfs = tf_service;
-
 // ...
 
-tfs::SimpleBufferClient buffer("/tf_service");
+tf_service::BufferClient buffer("/tf_service");
 
 // Use it like any other TF2 buffer.
 std::string errstr;
