@@ -1,6 +1,6 @@
 #pragma once
 
-#include "geometry_msgs/Transform.h"
+#include "geometry_msgs/TransformStamped.h"
 
 #include "pybind11/pybind11.h"
 
