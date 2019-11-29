@@ -20,10 +20,22 @@ int main(int argc, char** argv) {
   ;
   // clang-format on
   po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, desc), vm);
+  try {
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+  } catch (const po::error& exception) {
+    std::cerr << exception.what() << std::endl;
+    return EXIT_FAILURE;
+  }
   po::notify(vm);
   if (vm.count("help")) {
     std::cout << desc << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // boost::po overflows unsigned int for negative values passed to argv,
+  // so we use a signed one and check manually.
+  if (num_threads < 0) {
+    std::cerr << "The number of threads can't be negative." << std::endl;
     return EXIT_FAILURE;
   }
 
