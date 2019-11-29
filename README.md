@@ -10,19 +10,29 @@ Implemented in C++ and Python bindings.
 
 ---
 
-### Installation
+## Motivation
 
-#### Package
+This package allows to outsource TF lookups for nodes with medium/low frequency requirements.
+A central server node maintains a TF buffer and can handle requests from multiple clients.
+This saves resources as the clients don't need to have their own TF listener.
 
-*todo*
+### Shortcomings of the tf2_ros implementation
 
-#### Testing
+So far, that's nothing new - [`tf2_ros`](https://github.com/ros/geometry2) already comes with `tf2_ros::BufferClient`.
+It uses ROS actions to communicate requests and response status between clients and server.
 
-```
-magclone tf_service
-git -C tf_service/ submodule update --init
-ci
-```
+The idea is great, but it can scale badly with the number of clients and requests.
+This is due to the broadcast nature of the [ROS action protocol](http://wiki.ros.org/actionlib/DetailedDescription#Action_Interface_.26_Transport_Layer), where each client receives status update callbacks of the currently active goals.
+In the case of an TF server, this is not very practical because one client node doesn't care about the status of transform requests made by other nodes (especially if it would otherwise query at a low frequency).
+Ultimately, this burns unnecessary CPU resources: see the "Benchmarks" section below for a synthetic example.
+
+### tf_service implementation
+
+In essence, `tf_service` simply uses persistent services instead of actions.
+
+The server handles service requests from clients asynchronously (using a multi-threaded `ros::AsyncSpinner`) and answers directly to each requesting node, thus avoiding broadcasts to unaffected clients.
+
+Especially for Python code this can improve performance a lot.
 
 ---
 ## server
@@ -32,6 +42,7 @@ rosrun tf_service server --num_threads 10
 ```
 
 Starts the TF server node. The number of threads limits the number of request queues the server can handle in parallel.
+Adapt this number to your requirements.
 
 ---
 ## client
@@ -43,11 +54,13 @@ The client implements the normal TF2 buffer interface.
 The Python bindings are wrapped in a standard `tf2_ros.BufferInterface`:
 
 ```python
-
 import rospy                                                         
 import tf_service
 
+# ...
+
 buffer = tf_service.BufferClient("/tf_service")
+buffer.wait_for_server()
 
 # Use it like any other TF2 buffer.
 if buffer.can_transform("map", "odom", rospy.Time(0), rospy.Duration(5)):
@@ -59,11 +72,13 @@ if buffer.can_transform("map", "odom", rospy.Time(0), rospy.Duration(5)):
 Implements a standard `tf2_ros::BufferInterface`:
 
 ```cpp
+#include "ros/ros.h"
 #include "tf_service/buffer_client.h"
 
 // ...
 
 tf_service::BufferClient buffer("/tf_service");
+buffer.wait_for_server();
 
 // Use it like any other TF2 buffer.
 std::string errstr;
@@ -72,6 +87,27 @@ if (buffer.canTransform("map", "odom", ros::Time(0), ros::Duration(1), &errstr))
 }
 ```
 
+### Persistence
+
+Service connections are [persistent](http://wiki.ros.org/roscpp/Overview/Services#Persistent_Connections) for performance reasons.
+You can use the `wait_for_server` method with a timeout in case the connection was lost, it reestablishes a persistent connection if possible.
+
+---
+## Installation
+
+### Package
+
+*todo*
+
+### Testing
+
+```
+magclone tf_service
+git -C tf_service/ submodule update --init
+ci
+```
+
+---
 ## Benchmarks
 
 The Python client implementation is much more efficient than the old `tf2_ros.BufferClient`.

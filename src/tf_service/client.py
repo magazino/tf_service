@@ -24,7 +24,7 @@ class BufferClient(tf2_ros.BufferInterface):
     @translate_exceptions
     def wait_for_server(self, timeout=rospy.Duration(-1)):
         """
-        Block until the server is ready to respond to requests.
+        Block until the server is ready to respond to requests and reconnect.
 
         :param timeout: Time to wait for the server.
         :return: True if the server is ready, false otherwise.
