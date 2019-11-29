@@ -99,12 +99,14 @@ You can use the `wait_for_server` method with a timeout in case the connection w
 
 *todo*
 
-### Testing
+### From source
 
-```
-magclone tf_service
-git -C tf_service/ submodule update --init
-ci
+`git clone` the repo into your catkin workspace and run:
+
+```bash
+cd tf_service
+git submodule update --init  # for pybind11 headers
+catkin build --this
 ```
 
 ---
