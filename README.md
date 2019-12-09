@@ -129,3 +129,11 @@ Service calls are blocking and should be "short".
 To reduce the risk that clients can brick the server, timeouts greater than 10 seconds are not allowed.
 
 If you need very long timeouts, you might be better off with the old action-client based implementation from TF2.
+
+## License
+
+[Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+
+Third-party notice:
+Directly bundled / derived third party code is mentioned in the `NOTICE` file.
+All other ROS / system dependencies are listed in the `package.xml` file.

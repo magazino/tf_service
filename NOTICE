@@ -1,0 +1,18 @@
+tf_service
+
+Copyright 2019 Magazino GmbH, Michael Grupp
+
+================================================================================
+
+tf_service includes a number of subcomponents with
+separate copyright notices and license terms. Your use of the source
+code for these subcomponents is subject to the terms and
+conditions of the following licenses. 
+
+This product includes code from geometry2, copyright Willow Garage, Inc.,
+which is available under a BSD license.
+For details, see: 3rdparty/geometry2_LICENSE and http://wiki.ros.org/geometry2
+
+This product bundles a Git submodule of pybind11, copyright Wenzel Jakob,
+which is available under a BSD-style license.
+For details, see: 3rdparty/pybind11/LICENSE

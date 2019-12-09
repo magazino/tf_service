@@ -7,7 +7,7 @@
   <author email="grupp@magazino.eu">Michael Grupp</author>
   <maintainer email="grupp@magazino.eu">Michael Grupp</maintainer>
   <url type="website">https://magazino.eu</url>
-  <license>BSD</license>
+  <license>Apache 2.0</license>
 
 
   <buildtool_depend>catkin</buildtool_depend>
