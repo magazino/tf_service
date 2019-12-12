@@ -1,0 +1,8 @@
+os:
+  - linux
+
+services:
+  - docker
+
+script:
+  - docker build . --file Dockerfile.melodic --tag tf_service:test || exit 1

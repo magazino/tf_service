@@ -4,6 +4,8 @@ TF buffer server / client implementation based on ROS services.
 
 Implemented in C++ and Python bindings.
 
+[![Build Status](https://travis-ci.org/magazino/tf_service.svg?branch=master)](https://travis-ci.org/magazino/tf_service)
+
 ---
 
 ![diagram](diagram.png)
