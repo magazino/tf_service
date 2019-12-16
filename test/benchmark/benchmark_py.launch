@@ -10,13 +10,11 @@
     args="1 2 3 0 0 0 map odom" output="screen"/>
 
   <!-- Server -->
-  <group unless="$(arg use_old_version)" >
+
     <node name="tf_service" pkg="tf_service"
           type="server" args="--num_threads 5" output="screen"/>
-  </group>
-  <group if="$(arg use_old_version)" >
+
     <node name="tf2_buffer_server" pkg="tf2_ros" type="buffer_server" />
-  </group>
 
   <!-- Clients -->
   <node name="client_1" pkg="tf_service" required="true"
@@ -47,6 +45,38 @@
         type="client_test_main.py" args="
         --lookup_frequency 10
         $(arg flags)
+        " output="screen"/>
+
+
+  <!-- Clients -->
+  <node name="client_1_old" pkg="tf_service" required="true"
+        type="client_test_main.py" args="
+        --lookup_frequency 10
+        --use_old_version
+        " output="screen"/>
+
+  <node name="client_2_old" pkg="tf_service" required="true"
+        type="client_test_main.py" args="
+        --lookup_frequency 10
+        --use_old_version
+        " output="screen"/>
+
+  <node name="client_3_old" pkg="tf_service" required="true"
+        type="client_test_main.py" args="
+        --lookup_frequency 10
+        --use_old_version
+        " output="screen"/>
+
+  <node name="client_4_old" pkg="tf_service" required="true"
+        type="client_test_main.py" args="
+        --lookup_frequency 10
+        --use_old_version
+        " output="screen"/>
+
+  <node name="client_5_old" pkg="tf_service" required="true"
+        type="client_test_main.py" args="
+        --lookup_frequency 10
+        --use_old_version
         " output="screen"/>
 
 </launch>

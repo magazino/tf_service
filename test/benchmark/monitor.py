@@ -140,6 +140,7 @@ if __name__ == "__main__":
         import matplotlib.pyplot as plt
         import seaborn as sns
         sns.set()
+        sns.set_palette("tab20", n_colors=12)
         plot_df = aggregate_df.unstack()[args.plot_attribute]
         ax = plot_df.plot(kind="line")
         ax.set_ylabel(args.plot_attribute)
