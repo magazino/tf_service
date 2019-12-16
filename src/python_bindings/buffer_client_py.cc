@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <signal.h>
 #include <memory>
 
 #include "pybind11/pybind11.h"
@@ -26,27 +25,17 @@
 namespace py = pybind11;
 namespace tfs = tf_service;
 
-// Shuts down both roscpp and rospy. ¯\_(ツ)_/¯
-void ros_shutdown(int sig) {
-  ROS_DEBUG("Shutting down roscpp and rospy.");
-  ros::requestShutdown();
-  py::module::import("rospy").attr("signal_shutdown")("shutdown request");
-  ROS_INFO("bla");
-}
-
 // Wires up an internal node that allows us to create node handles.
-// Python defers signal handling until the next instruction is handled,
-// so it would be blocked by a long C++ call. Here, we can catch this directly
-// by installing a signal handler.
 static void ros_init_once() {
   if (ros::isInitialized()) {
     return;
   }
+  // Let Python do signal handling. Note: Python defers signal handling until
+  // the next instruction is handled, so it would be blocked by a long C++ call.
   auto init_option_bitflags =
       (ros::init_options::AnonymousName | ros::init_options::NoSigintHandler);
-  ros::init(ros::M_string(), "simple_tf_buffer_client_py_internal",
+  ros::init(ros::M_string() /* no remapping */, "tf_service_client_py_internal",
             init_option_bitflags);
-  signal(SIGINT, ros_shutdown);
 }
 
 // Python module "client", will be <pkg_name>.client after catkin build.
@@ -99,7 +88,8 @@ PYBIND11_MODULE(client_binding, m) {
            /* doc strings for args */
            py::arg("timeout"));
 
-  m.def("ros_shutdown", &ros_shutdown);
+  // Intended for use in Python shutdown hooks.
+  m.def("roscpp_shutdown", &ros::requestShutdown);
 
   // Register exception translators to this module.
   // They are evaluated from last registered to first registered,
