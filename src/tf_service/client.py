@@ -38,6 +38,7 @@ class BufferClient(tf2_ros.BufferInterface):
         tf2_ros.BufferInterface.__init__(self)
         # All actual work is done by the C++ binding.
         self.client = client_binding.BufferClientBinding(server_node_name)
+        rospy.on_shutdown(client_binding.roscpp_shutdown)
 
     @translate_exceptions
     def wait_for_server(self, timeout=rospy.Duration(-1)):
