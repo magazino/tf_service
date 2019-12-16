@@ -123,6 +123,10 @@ with the new implementation from this package:
 roslaunch tf_service benchmark_py.launch use_old_version:=false
 ```
 
+Exemplary live CPU percentage comparison run on a laptop:
+
+<img src="test/benchmark/plot.png" alt="benchmark_example_plot" width="400" />
+
 ## Limitations
 
 Service calls are blocking and should be "short".
