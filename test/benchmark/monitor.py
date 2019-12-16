@@ -55,7 +55,6 @@ class RosProcessMonitor(object):
     def refresh_process_list(self, nodes=None):
         if nodes:
             new_nodes = list(set(nodes) & set(rosnode.get_node_names()))
-            print(new_nodes)
         else:
             new_nodes = rosnode.get_node_names()
         if new_nodes == self.nodes:
