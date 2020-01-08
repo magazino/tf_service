@@ -12,7 +12,3 @@ conditions of the following licenses.
 This product includes code from geometry2, copyright Willow Garage, Inc.,
 which is available under a BSD license.
 For details, see: 3rdparty/geometry2_LICENSE and http://wiki.ros.org/geometry2
-
-This product bundles a Git submodule of pybind11, copyright Wenzel Jakob,
-which is available under a BSD-style license.
-For details, see: 3rdparty/pybind11/LICENSE
