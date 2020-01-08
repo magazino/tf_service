@@ -26,6 +26,12 @@
 
 namespace tf_service {
 
+struct ServerOptions {
+  ros::Duration cache_time = ros::Duration(tf2_ros::Buffer::DEFAULT_CACHE_TIME);
+  ros::Duration max_timeout = ros::Duration(10);
+  bool debug = false;
+};
+
 // Exposes TF lookup as a ROS service.
 // Since TF buffer lookups are thread-safe, this class can be used with parallel
 // callback handlers.
@@ -33,7 +39,7 @@ class Server {
  public:
   Server() = delete;
 
-  Server(std::shared_ptr<ros::NodeHandle> private_node_handle);
+  Server(const ServerOptions& options);
 
   bool handleLookupTransform(tf_service::LookupTransformRequest& request,
                              tf_service::LookupTransformResponse& response);
@@ -42,10 +48,10 @@ class Server {
                           tf_service::CanTransformResponse& response);
 
  private:
-  std::shared_ptr<ros::NodeHandle> private_node_handle_;
+  ServerOptions options_;
   std::vector<ros::ServiceServer> service_servers_;
   tf2_ros::Buffer tf_buffer_;
-  std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
+  tf2_ros::TransformListener tf_listener_;
 };
 
 }  // namespace tf_service

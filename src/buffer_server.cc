@@ -21,26 +21,27 @@
 
 namespace tf_service {
 
-Server::Server(std::shared_ptr<ros::NodeHandle> private_node_handle)
-    : private_node_handle_(private_node_handle) {
+Server::Server(const ServerOptions& options)
+    : options_(options),
+      tf_buffer_(options_.cache_time, options_.debug),
+      tf_listener_(tf_buffer_) {
   tf_buffer_.setUsingDedicatedThread(true);
-  tf_listener_ = std::make_unique<tf2_ros::TransformListener>(tf_buffer_);
-  service_servers_.push_back(private_node_handle_->advertiseService(
+  ros::NodeHandle private_node_handle("~");
+  service_servers_.push_back(private_node_handle.advertiseService(
       kLookupTransformServiceName, &Server::handleLookupTransform, this));
-  service_servers_.push_back(private_node_handle_->advertiseService(
+  service_servers_.push_back(private_node_handle.advertiseService(
       kCanTransformServiceName, &Server::handleCanTransform, this));
 }
 
 bool Server::handleLookupTransform(
     tf_service::LookupTransformRequest& request,
     tf_service::LookupTransformResponse& response) {
-  // TODO make sure not to block forever if someone sends a long timeout.
-  // TODO move to client?
-  if (request.timeout > ros::Duration(kMaxAllowedTimeout)) {
+  // Make sure not to block forever if someone sends a long timeout.
+  if (request.timeout > options_.max_timeout) {
     response.status.error = tf2_msgs::TF2Error::INVALID_ARGUMENT_ERROR;
-    response.status.error_string = "Requests with a timeout above " +
-                                   std::to_string(kMaxAllowedTimeout) +
-                                   " are not supported.";
+    response.status.error_string =
+        "Server is configured to block requests with a timeout above " +
+        std::to_string(options_.max_timeout.toSec()) + " seconds.";
     return true;
   }
   geometry_msgs::TransformStamped transform;
@@ -87,6 +88,13 @@ bool Server::handleLookupTransform(
 
 bool Server::handleCanTransform(tf_service::CanTransformRequest& request,
                                 tf_service::CanTransformResponse& response) {
+  if (request.timeout > options_.max_timeout) {
+    response.can_transform = false;
+    response.errstr =
+        "Server is configured to block requests with a timeout above " +
+        std::to_string(options_.max_timeout.toSec()) + " seconds.";
+    return true;
+  }
   if (request.advanced) {
     response.can_transform = tf_buffer_.canTransform(
         request.target_frame, request.target_time, request.source_frame,

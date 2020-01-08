@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import functools
+
 import tf2_ros
 
 from tf_service import client_binding
@@ -20,6 +22,7 @@ from tf_service import client_binding
 # Decorator for class methods that translates internal exception types to
 # corresponding tf2_ros.*Exceptions.
 def translate_exceptions(method):
+    @functools.wraps(method)
     def translate(obj, *args, **kwargs):
         try:
             return_value = method(obj, *args, **kwargs)

@@ -31,6 +31,11 @@ int main(int argc, char** argv) {
     ("help", "show usage")
     ("num_threads", po::value<int>(&num_threads)->default_value(10),
      "Number of handler threads. 0 means number of CPU cores.")
+    ("cache_time", po::value<double>(),
+     "Buffer cache time of the underlying TF buffer in seconds.")
+    ("max_timeout", po::value<double>(),
+     "Requests with lookup timeouts (seconds) above this will be blocked.")
+    ("debug", "Enables debugging features.")
   ;
   // clang-format on
   po::variables_map vm;
@@ -53,11 +58,17 @@ int main(int argc, char** argv) {
     return EXIT_FAILURE;
   }
 
+  tf_service::ServerOptions options;
+  if (vm.count("cache_time"))
+    options.cache_time = ros::Duration(vm["cache_time"].as<double>());
+  if (vm.count("max_timeout"))
+    options.max_timeout = ros::Duration(vm["max_timeout"].as<double>());
+  options.debug = vm.count("debug");
+
   ros::init(argc, argv, "tf_service");
-  auto private_node_handle = std::make_shared<ros::NodeHandle>("~");
 
   ROS_INFO_STREAM("Starting server with " << num_threads << " handler threads");
-  tf_service::Server server(private_node_handle);
+  tf_service::Server server(options);
   ros::AsyncSpinner spinner(num_threads);
   spinner.start();
   ros::waitForShutdown();
