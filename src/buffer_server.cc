@@ -21,16 +21,15 @@
 
 namespace tf_service {
 
-Server::Server(std::shared_ptr<ros::NodeHandle> private_node_handle,
-               const ServerOptions& options)
-    : private_node_handle_(private_node_handle), options_(options) {
-  tf_buffer_ =
-      std::make_unique<tf2_ros::Buffer>(options_.cache_time, options_.debug);
-  tf_buffer_->setUsingDedicatedThread(true);
-  tf_listener_ = std::make_unique<tf2_ros::TransformListener>(*tf_buffer_);
-  service_servers_.push_back(private_node_handle_->advertiseService(
+Server::Server(const ServerOptions& options)
+    : options_(options),
+      tf_buffer_(options_.cache_time, options_.debug),
+      tf_listener_(tf_buffer_) {
+  tf_buffer_.setUsingDedicatedThread(true);
+  ros::NodeHandle private_node_handle("~");
+  service_servers_.push_back(private_node_handle.advertiseService(
       kLookupTransformServiceName, &Server::handleLookupTransform, this));
-  service_servers_.push_back(private_node_handle_->advertiseService(
+  service_servers_.push_back(private_node_handle.advertiseService(
       kCanTransformServiceName, &Server::handleCanTransform, this));
 }
 
@@ -48,13 +47,13 @@ bool Server::handleLookupTransform(
   geometry_msgs::TransformStamped transform;
   try {
     if (request.advanced) {
-      transform = tf_buffer_->lookupTransform(
+      transform = tf_buffer_.lookupTransform(
           request.target_frame, request.target_time, request.source_frame,
           request.source_time, request.fixed_frame, request.timeout);
     } else {
-      transform = tf_buffer_->lookupTransform(request.target_frame,
-                                              request.source_frame,
-                                              request.time, request.timeout);
+      transform =
+          tf_buffer_.lookupTransform(request.target_frame, request.source_frame,
+                                     request.time, request.timeout);
     }
   } catch (const tf2::ConnectivityException& exception) {
     response.status.error = tf2_msgs::TF2Error::CONNECTIVITY_ERROR;
@@ -97,12 +96,12 @@ bool Server::handleCanTransform(tf_service::CanTransformRequest& request,
     return true;
   }
   if (request.advanced) {
-    response.can_transform = tf_buffer_->canTransform(
+    response.can_transform = tf_buffer_.canTransform(
         request.target_frame, request.target_time, request.source_frame,
         request.source_time, request.fixed_frame, request.timeout,
         &response.errstr);
   } else {
-    response.can_transform = tf_buffer_->canTransform(
+    response.can_transform = tf_buffer_.canTransform(
         request.target_frame, request.source_frame, request.time,
         request.timeout, &response.errstr);
   }

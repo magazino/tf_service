@@ -39,8 +39,7 @@ class Server {
  public:
   Server() = delete;
 
-  Server(std::shared_ptr<ros::NodeHandle> private_node_handle,
-         const ServerOptions& options);
+  Server(const ServerOptions& options);
 
   bool handleLookupTransform(tf_service::LookupTransformRequest& request,
                              tf_service::LookupTransformResponse& response);
@@ -49,11 +48,10 @@ class Server {
                           tf_service::CanTransformResponse& response);
 
  private:
-  std::shared_ptr<ros::NodeHandle> private_node_handle_;
   ServerOptions options_;
   std::vector<ros::ServiceServer> service_servers_;
-  std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
-  std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
+  tf2_ros::Buffer tf_buffer_;
+  tf2_ros::TransformListener tf_listener_;
 };
 
 }  // namespace tf_service

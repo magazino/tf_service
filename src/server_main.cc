@@ -66,10 +66,9 @@ int main(int argc, char** argv) {
   options.debug = vm.count("debug");
 
   ros::init(argc, argv, "tf_service");
-  auto private_node_handle = std::make_shared<ros::NodeHandle>("~");
 
   ROS_INFO_STREAM("Starting server with " << num_threads << " handler threads");
-  tf_service::Server server(private_node_handle, options);
+  tf_service::Server server(options);
   ros::AsyncSpinner spinner(num_threads);
   spinner.start();
   ros::waitForShutdown();
