@@ -35,6 +35,9 @@ class BufferClient(tf2_ros.BufferInterface):
 
     @translate_exceptions
     def __init__(self, server_node_name):
+        """
+        :param server_node_name: name of the tf_service server ROS node
+        """
         tf2_ros.BufferInterface.__init__(self)
         # All actual work is done by the C++ binding.
         self.client = client_binding.BufferClientBinding(server_node_name)
