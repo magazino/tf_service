@@ -39,12 +39,11 @@ static void ros_init_once() {
 }
 
 // Python module "client", will be <pkg_name>.client after catkin build.
-PYBIND11_MODULE(client_binding, m) {
+// TODO: use PYBIND11_MODULE in new versions, see other TODO at end of macro.
+PYBIND11_PLUGIN(client_binding) {
+  py::module m("client_binding");
   py::class_<tfs::BufferClient>(m, "BufferClientBinding")
-      .def(py::init([](const std::string& server_node_name) {
-             ros_init_once();
-             return std::make_unique<tfs::BufferClient>(server_node_name);
-           }),
+      .def(py::init<const std::string&>(),
            /* doc strings for args */
            py::arg("server_node_name"))
       .def("can_transform",
@@ -87,6 +86,9 @@ PYBIND11_MODULE(client_binding, m) {
       .def("wait_for_server", &tfs::BufferClient::waitForServer,
            /* doc strings for args */
            py::arg("timeout"));
+
+  // Needs to be called in Python code.
+  m.def("roscpp_init_once", &ros_init_once);
 
   // Intended for use in Python shutdown hooks.
   m.def("roscpp_shutdown", &ros::requestShutdown);
@@ -148,4 +150,7 @@ PYBIND11_MODULE(client_binding, m) {
       TimeoutExceptionPy(e.what());
     }
   });
+
+  // TODO: obsolete with PYBIND11_MODULE
+  return m.ptr();
 }
