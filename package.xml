@@ -12,10 +12,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <!-- TODO: use this instead of submodule
-             ...once the Ubuntu package is less broken:
-             https://bugs.launchpad.net/ubuntu/+source/pybind11/+bug/1779578 -->
-  <!-- <build_depend>pybind11-dev</build_depend> -->
+  <build_depend>pybind11-dev</build_depend> -->
 
   <depend>boost</depend>
   <depend>geometry_msgs</depend>

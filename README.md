@@ -103,12 +103,10 @@ You can use the `wait_for_server` method with a timeout in case the connection w
 
 ### From source
 
-`git clone` the repo into your catkin workspace and run:
+`git clone` the repo into your catkin workspace, install the dependencies and run:
 
 ```bash
-cd tf_service
-git submodule update --init  # for pybind11 headers
-catkin build --this
+catkin build tf_service
 ```
 
 ---

@@ -23,7 +23,7 @@ find_package(catkin REQUIRED COMPONENTS ${PACKAGE_DEPENDENCIES})
 find_package(Boost REQUIRED COMPONENTS filesystem program_options)
 
 # pybind11 is header-only.
-add_subdirectory(3rdparty/pybind11)
+find_package(pybind11)
 
 
 ##############
