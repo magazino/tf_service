@@ -2,6 +2,16 @@
 Changelog for package tf_service
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.2.1 (2020-01-09)
+------------------
+* Kick out pybind11 submodule.
+* Compatibility with old pybind11 from Ubuntu.
+  Luckily this only affects two smaller things (different macro signature
+  and lambda support). It's also forward-compatible with the current
+  upstream of pybind11, although with a deprecation warning.
+  Note: documentation for this old version can be fetched by installing
+  pybind11-doc (then in /usr/share/pybind11-doc).
+
 0.2.0 (2020-01-08)
 ------------------
 * Remove unnecessary smart pointers.
