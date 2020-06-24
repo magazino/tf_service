@@ -4,5 +4,9 @@ os:
 services:
   - docker
 
+env:
+  - ROS_DISTRO=melodic
+  - ROS_DISTRO=noetic
+
 script:
-  - docker build . --file Dockerfile.melodic --tag tf_service:test || exit 1
+  - docker build . --file Dockerfile.${ROS_DISTRO} --tag tf_service:test || exit 1
