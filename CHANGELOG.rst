@@ -2,6 +2,12 @@
 Changelog for package tf_service
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.0 (2020-06-24)
+------------------
+* Show supported distros in README.md
+* Use explicit relative import for Python 3 support.
+* Add Dockerfile for Noetic and run it in Travis CI.
+
 0.2.1 (2020-01-09)
 ------------------
 * Kick out pybind11 submodule.
