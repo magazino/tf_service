@@ -35,7 +35,8 @@ int main(int argc, char** argv) {
      "Buffer cache time of the underlying TF buffer in seconds.")
     ("max_timeout", po::value<double>(),
      "Requests with lookup timeouts (seconds) above this will be blocked.")
-    ("debug", "Enables debugging features.")
+    ("frames_service", "Advertise the tf2_frames service.")
+    ("debug", "Advertise the tf2_frames service (same as --frames_service).")
   ;
   // clang-format on
   po::variables_map vm;
@@ -63,7 +64,7 @@ int main(int argc, char** argv) {
     options.cache_time = ros::Duration(vm["cache_time"].as<double>());
   if (vm.count("max_timeout"))
     options.max_timeout = ros::Duration(vm["max_timeout"].as<double>());
-  options.debug = vm.count("debug");
+  options.debug = vm.count("frames_service") || vm.count("debug");
 
   ros::init(argc, argv, "tf_service");
 
