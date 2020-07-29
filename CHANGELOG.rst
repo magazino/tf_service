@@ -2,6 +2,10 @@
 Changelog for package tf_service
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.4.0 (2020-07-29)
+------------------
+* Rename --debug to --frames_service
+
 0.3.0 (2020-06-24)
 ------------------
 * Show supported distros in README.md
