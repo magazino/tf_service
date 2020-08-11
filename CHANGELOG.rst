@@ -2,6 +2,13 @@
 Changelog for package tf_service
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.5.0 (2020-08-11)
+------------------
+* Drop intermediate directory when installing headers.
+  `#include "tf_service/client.h"`
+  in client code instead of
+  `#include "tf_service/tf_service/client.h"`
+
 0.4.0 (2020-07-29)
 ------------------
 * Rename --debug to --frames_service
