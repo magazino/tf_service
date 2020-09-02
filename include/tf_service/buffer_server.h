@@ -19,6 +19,7 @@
 
 #include "ros/ros.h"
 #include "tf2_ros/buffer.h"
+#include "tf2_ros/buffer_server.h"
 #include "tf2_ros/transform_listener.h"
 
 #include "tf_service/CanTransform.h"
@@ -30,6 +31,8 @@ struct ServerOptions {
   ros::Duration cache_time = ros::Duration(tf2_ros::Buffer::DEFAULT_CACHE_TIME);
   ros::Duration max_timeout = ros::Duration(10);
   bool debug = false;
+  bool add_legacy_server = false;
+  std::string legacy_server_namespace = "";
 };
 
 // Exposes TF lookup as a ROS service.
@@ -39,7 +42,7 @@ class Server {
  public:
   Server() = delete;
 
-  Server(const ServerOptions& options);
+  explicit Server(const ServerOptions& options);
 
   bool handleLookupTransform(tf_service::LookupTransformRequest& request,
                              tf_service::LookupTransformResponse& response);
@@ -52,6 +55,7 @@ class Server {
   std::vector<ros::ServiceServer> service_servers_;
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
+  std::unique_ptr<tf2_ros::BufferServer> optional_legacy_server_;
 };
 
 }  // namespace tf_service

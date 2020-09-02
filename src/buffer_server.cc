@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <functional>
+
 #include "tf_service/buffer_server.h"
 
 #include "geometry_msgs/TransformStamped.h"
@@ -31,6 +33,15 @@ Server::Server(const ServerOptions& options)
       kLookupTransformServiceName, &Server::handleLookupTransform, this));
   service_servers_.push_back(private_node_handle.advertiseService(
       kCanTransformServiceName, &Server::handleCanTransform, this));
+  if (options_.add_legacy_server) {
+    optional_legacy_server_ = std::make_unique<tf2_ros::BufferServer>(
+        std::cref(tf_buffer_),
+        options_.legacy_server_namespace.empty()
+            ? ros::this_node::getName()
+            : options_.legacy_server_namespace,
+        false /* auto_start */);
+    optional_legacy_server_->start();
+  }
 }
 
 bool Server::handleLookupTransform(

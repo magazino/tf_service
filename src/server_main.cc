@@ -37,6 +37,9 @@ int main(int argc, char** argv) {
      "Requests with lookup timeouts (seconds) above this will be blocked.")
     ("frames_service", "Advertise the tf2_frames service.")
     ("debug", "Advertise the tf2_frames service (same as --frames_service).")
+    ("add_legacy_server", "If set, also run a tf2_ros::BufferServer.")
+    ("legacy_server_namespace", po::value<std::string>()->default_value(""),
+     "Use a separate namespace for the legacy action server.")
   ;
   // clang-format on
   po::variables_map vm;
@@ -65,10 +68,15 @@ int main(int argc, char** argv) {
   if (vm.count("max_timeout"))
     options.max_timeout = ros::Duration(vm["max_timeout"].as<double>());
   options.debug = vm.count("frames_service") || vm.count("debug");
+  options.add_legacy_server = vm.count("add_legacy_server");
+  options.legacy_server_namespace =
+      vm["legacy_server_namespace"].as<std::string>();
 
   ros::init(argc, argv, "tf_service");
 
   ROS_INFO_STREAM("Starting server with " << num_threads << " handler threads");
+  ROS_INFO_COND(options.add_legacy_server,
+                "Also starting a legacy tf2::BufferServer.");
   tf_service::Server server(options);
   ros::AsyncSpinner spinner(num_threads);
   spinner.start();
