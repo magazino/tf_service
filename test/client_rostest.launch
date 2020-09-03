@@ -6,7 +6,12 @@
 
   <!-- Server -->
   <node name="tf_service" pkg="tf_service"
-        type="server" args="--num_threads 5" output="screen" required="true" />
+        type="server" args="
+          --num_threads 5
+          --add_legacy_server
+          --legacy_server_namespace /tf2_buffer_server
+        "
+        output="screen" required="true" />
 
   <!-- Test node -->
   <test test-name="client_rostest" pkg="tf_service"
