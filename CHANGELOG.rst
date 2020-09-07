@@ -2,6 +2,13 @@
 Changelog for package tf_service
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.6.0 (2020-09-07)
+------------------
+* Set and log legacy server namespace in server_main.cc
+* Parameterize gtest to test also the legacy mode.
+* Allow running a legacy tf2::BufferServer in the same node.
+  Useful to avoid two separate nodes when both are used.
+
 0.5.0 (2020-08-11)
 ------------------
 * Drop intermediate directory when installing headers.
