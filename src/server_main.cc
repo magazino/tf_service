@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
     ("frames_service", "Advertise the tf2_frames service.")
     ("debug", "Advertise the tf2_frames service (same as --frames_service).")
     ("add_legacy_server", "If set, also run a tf2_ros::BufferServer.")
-    ("legacy_server_namespace", po::value<std::string>()->default_value(""),
+    ("legacy_server_namespace", po::value<std::string>(),
      "Use a separate namespace for the legacy action server.")
   ;
   // clang-format on
@@ -62,6 +62,8 @@ int main(int argc, char** argv) {
     return EXIT_FAILURE;
   }
 
+  ros::init(argc, argv, "tf_service");
+
   tf_service::ServerOptions options;
   if (vm.count("cache_time"))
     options.cache_time = ros::Duration(vm["cache_time"].as<double>());
@@ -70,13 +72,14 @@ int main(int argc, char** argv) {
   options.debug = vm.count("frames_service") || vm.count("debug");
   options.add_legacy_server = vm.count("add_legacy_server");
   options.legacy_server_namespace =
-      vm["legacy_server_namespace"].as<std::string>();
-
-  ros::init(argc, argv, "tf_service");
+      vm.count("legacy_server_namespace")
+          ? vm["legacy_server_namespace"].as<std::string>()
+          : ros::this_node::getName();
 
   ROS_INFO_STREAM("Starting server with " << num_threads << " handler threads");
-  ROS_INFO_COND(options.add_legacy_server,
-                "Also starting a legacy tf2::BufferServer.");
+  ROS_INFO_STREAM_COND(options.add_legacy_server,
+                       "Also starting a legacy tf2::BufferServer in namespace "
+                           << options.legacy_server_namespace);
   tf_service::Server server(options);
   ros::AsyncSpinner spinner(num_threads);
   spinner.start();

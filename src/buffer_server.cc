@@ -35,10 +35,7 @@ Server::Server(const ServerOptions& options)
       kCanTransformServiceName, &Server::handleCanTransform, this));
   if (options_.add_legacy_server) {
     optional_legacy_server_ = std::make_unique<tf2_ros::BufferServer>(
-        std::cref(tf_buffer_),
-        options_.legacy_server_namespace.empty()
-            ? ros::this_node::getName()
-            : options_.legacy_server_namespace,
+        std::cref(tf_buffer_), options_.legacy_server_namespace,
         false /* auto_start */);
     optional_legacy_server_->start();
   }
