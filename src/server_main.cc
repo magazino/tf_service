@@ -14,6 +14,7 @@
 
 #include <iostream>
 #include <memory>
+#include <thread>
 
 #include "ros/ros.h"
 #include "tf_service/buffer_server.h"
@@ -29,7 +30,7 @@ int main(int argc, char** argv) {
   // clang-format off
   desc.add_options()
     ("help", "show usage")
-    ("num_threads", po::value<int>(&num_threads)->default_value(10),
+    ("num_threads", po::value<int>(&num_threads)->default_value(0),
      "Number of handler threads. 0 means number of CPU cores.")
     ("cache_time", po::value<double>(),
      "Buffer cache time of the underlying TF buffer in seconds.")
@@ -55,14 +56,17 @@ int main(int argc, char** argv) {
     return EXIT_FAILURE;
   }
 
+  ros::init(argc, argv, "tf_service");
+
   // boost::po overflows unsigned int for negative values passed to argv,
   // so we use a signed one and check manually.
   if (num_threads < 0) {
-    std::cerr << "The number of threads can't be negative." << std::endl;
+    ROS_ERROR("The number of threads can't be negative.");
     return EXIT_FAILURE;
+  } else if (num_threads == 0) {
+    ROS_INFO_STREAM("--num_threads unspecified / zero, using available cores.");
+    num_threads = std::thread::hardware_concurrency();
   }
-
-  ros::init(argc, argv, "tf_service");
 
   tf_service::ServerOptions options;
   if (vm.count("cache_time"))
