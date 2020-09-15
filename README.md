@@ -46,7 +46,7 @@ rosrun tf_service server --num_threads 10
 ```
 
 Starts the TF server node. The number of threads limits the number of request queues the server can handle in parallel.
-Adapt this number to your requirements.
+Adapt this number to your requirements. Add `--help` to see all options.
 
 ---
 ## client
@@ -129,6 +129,7 @@ roslaunch tf_service benchmark_py.launch use_old_version:=false
 
 Service calls are blocking and should be "short".
 To reduce the risk that clients can brick the server, timeouts greater than 10 seconds are not allowed.
+You can adjust this time using the `--max_timeout` flag of the server executable.
 
 If you need very long timeouts, you might be better off with the old action-client based implementation from TF2.
 
