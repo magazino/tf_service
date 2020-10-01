@@ -2,6 +2,12 @@
 Changelog for package tf_service
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.6.1 (2020-10-01)
+------------------
+* Default --num_threads to number of cores.
+  Also, log the proper final number instead of 0 when starting up.
+* Update README.md
+
 0.6.0 (2020-09-07)
 ------------------
 * Set and log legacy server namespace in server_main.cc
