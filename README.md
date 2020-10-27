@@ -132,6 +132,8 @@ To reduce the risk that clients can brick the server, timeouts greater than 10 s
 You can adjust this time using the `--max_timeout` flag of the server executable.
 
 If you need very long timeouts, you might be better off with the old action-client based implementation from TF2.
+Note that you can provide the old interface also with tf_service's server by passing `--add_legacy_server`,
+optionally with an extra namespace via `--legacy_server_namespace /tf2_buffer_server`.
 
 ## License
 
