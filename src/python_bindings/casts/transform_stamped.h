@@ -62,8 +62,7 @@ struct type_caster<geometry_msgs::TransformStamped> {
 
     tf.attr("header").attr("seq") = ::pybind11::cast(src.header.seq);
     tf.attr("header").attr("frame_id") = ::pybind11::cast(src.header.frame_id);
-    tf.attr("header").attr("stamp") =
-        type_caster<ros::Time>().cast(src.header.stamp, policy, parent);
+    tf.attr("header").attr("stamp") = ::pybind11::cast(src.header.stamp);
     tf.attr("child_frame_id") = ::pybind11::cast(src.child_frame_id);
     tf.attr("transform").attr("rotation").attr("w") =
         ::pybind11::cast(src.transform.rotation.w);
