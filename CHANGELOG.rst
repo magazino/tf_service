@@ -2,6 +2,21 @@
 Changelog for package tf_service
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.6.2 (2021-05-14)
+------------------
+* Fix leaking C++->Python cast of TransformStamped.header.stamp (`#17 <https://github.com/magazino/tf_service/issues/17>`_)
+  The manually call to our custom type_caster is missing an ownership
+  transfer, so the refcount is wrong. Stealing would be correct in this case:
+  ```c++
+  tf.attr("header").attr("stamp") =
+  ::pybind11::reinterpret_steal<object>(
+  type_caster<ros::Time>().cast(src.header.stamp, policy, parent));
+  ```
+  Overall, this is not necessary because `pybind11::cast` automatically
+  takes care of this and we can just use that instead.
+  Closes: `#16 <https://github.com/magazino/tf_service/issues/16>`_
+* Mention legacy mode in README.
+
 0.6.1 (2020-10-01)
 ------------------
 * Default --num_threads to number of cores.
