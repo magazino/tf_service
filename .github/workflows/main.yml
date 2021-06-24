@@ -20,5 +20,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: docker build
+        env:
+          DOCKERFILE: ${{ matrix.dockerfile }}
         run: |
-          docker build . --file $(dockerfile) --tag tf_service:test || exit 1
+          docker build . --file $DOCKERFILE --tag tf_service:test || exit 1
