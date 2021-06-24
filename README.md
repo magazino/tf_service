@@ -6,7 +6,7 @@ Implemented in C++ and Python bindings.
 
 | ROS noetic / melodic |
 | :---: |
-| [![Build Status](https://travis-ci.org/magazino/tf_service.svg?branch=master)](https://travis-ci.org/magazino/tf_service) |
+| [![Build Status](https://github.com/magazino/tf_service/actions/workflows/main.yml/badge.svg)](https://github.com/magazino/tf_service/actions) |
 
 ---
 
