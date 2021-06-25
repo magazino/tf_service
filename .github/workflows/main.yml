@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        dockerfile: ['Dockerfile.melodic', 'Dockerfile.noetic']
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: docker build
+        env:
+          DOCKERFILE: ${{ matrix.dockerfile }}
+        run: |
+          docker build . --file $DOCKERFILE --tag tf_service:test || exit 1
