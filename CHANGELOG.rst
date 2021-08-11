@@ -2,6 +2,12 @@
 Changelog for package tf_service
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.6.3 (2021-08-11)
+------------------
+* Remove travis config and update build badge.
+* Update main.yml
+* Configure GitHub actions CI.
+
 0.6.2 (2021-05-14)
 ------------------
 * Fix leaking C++->Python cast of TransformStamped.header.stamp (`#17 <https://github.com/magazino/tf_service/issues/17>`_)
