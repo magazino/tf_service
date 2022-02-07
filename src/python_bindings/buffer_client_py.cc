@@ -43,9 +43,10 @@ static void ros_init_once() {
 PYBIND11_PLUGIN(client_binding) {
   py::module m("client_binding");
   py::class_<tfs::BufferClient>(m, "BufferClientBinding")
-      .def(py::init<const std::string&>(),
+      .def(py::init<const std::string&, const bool, const ros::Duration>(),
            /* doc strings for args */
-           py::arg("server_node_name"))
+           py::arg("server_node_name"), py::arg("use_cache"),
+           py::arg("cache_time"))
       .def("can_transform",
            py::overload_cast<const std::string&, const std::string&,
                              const ros::Time&, ros::Duration, std::string*>(
@@ -85,7 +86,8 @@ PYBIND11_PLUGIN(client_binding) {
            py::arg("timeout"))
       .def("wait_for_server", &tfs::BufferClient::waitForServer,
            /* doc strings for args */
-           py::arg("timeout"));
+           py::arg("timeout"))
+      .def("clear_cache", &tfs::BufferClient::clearCache);
 
   // Needs to be called in Python code.
   m.def("roscpp_init_once", &ros_init_once);

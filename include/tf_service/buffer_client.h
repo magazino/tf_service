@@ -19,6 +19,7 @@
 #include <string>
 
 #include "ros/ros.h"
+#include "tf2/buffer_core.h"
 #include "tf2_ros/buffer_interface.h"
 
 namespace tf_service {
@@ -27,7 +28,9 @@ class BufferClient : public tf2_ros::BufferInterface {
  public:
   BufferClient() = delete;
 
-  BufferClient(const std::string& server_node_name);
+  BufferClient(const std::string& server_node_name,
+               const bool use_cache = false,
+               const ros::Duration cache_time = ros::Duration(10));
 
   ~BufferClient();
 
@@ -57,6 +60,8 @@ class BufferClient : public tf2_ros::BufferInterface {
   bool isConnected() const;
   bool waitForServer(const ros::Duration timeout = ros::Duration(-1));
 
+  void clearCache();
+
  private:
   mutable std::mutex mutex_;
 
@@ -65,6 +70,8 @@ class BufferClient : public tf2_ros::BufferInterface {
   // mutable because ServiceClient::call() isn't const.
   mutable ros::ServiceClient can_transform_client_;     // GUARDED_BY(mutex_);
   mutable ros::ServiceClient lookup_transform_client_;  // GUARDED_BY(mutex_);
+
+  std::unique_ptr<tf2::BufferCore> cache_;
 };
 
 }  // namespace tf_service
