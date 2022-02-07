@@ -17,7 +17,6 @@
 #include "boost/filesystem.hpp"
 #include "tf2/exceptions.h"
 #include "tf2_msgs/TF2Error.h"
-
 #include "tf_service/CanTransform.h"
 #include "tf_service/LookupTransform.h"
 #include "tf_service/constants.h"
@@ -60,7 +59,8 @@ void throwOnError(tf2_msgs::TF2Error& status) {
 
 namespace tf_service {
 
-BufferClient::BufferClient(const std::string& server_node_name)
+BufferClient::BufferClient(const std::string& server_node_name,
+                           const bool use_cache, const ros::Duration cache_time)
     : node_handle_(ros::NodeHandle()) {
   const std::string can_transform_service_full =
       join(server_node_name, kCanTransformServiceName);
@@ -71,6 +71,9 @@ BufferClient::BufferClient(const std::string& server_node_name)
   lookup_transform_client_ =
       node_handle_.serviceClient<tf_service::LookupTransform>(
           lookup_transform_service_full, true /* persistent */);
+  if (use_cache) {
+    cache_ = std::make_unique<tf2::BufferCore>(cache_time);
+  }
 }
 
 BufferClient::~BufferClient() { node_handle_.shutdown(); }
@@ -102,9 +105,22 @@ bool BufferClient::waitForServer(const ros::Duration timeout) {
   return isConnected() ? true : reconnect(timeout);
 }
 
+void BufferClient::clearCache() {
+  if (cache_) {
+    cache_->clear();
+  }
+}
+
 geometry_msgs::TransformStamped BufferClient::lookupTransform(
     const std::string& target_frame, const std::string& source_frame,
     const ros::Time& time, const ros::Duration timeout) const {
+  if (cache_) {
+    try {
+      return cache_->lookupTransform(target_frame, source_frame, time);
+    } catch (const tf2::TransformException& exception) {
+      // Cache miss, proceed with service call.
+    }
+  }
   tf_service::LookupTransform srv;
   srv.request.target_frame = target_frame;
   srv.request.source_frame = source_frame;
@@ -120,6 +136,9 @@ geometry_msgs::TransformStamped BufferClient::lookupTransform(
     throw tf2::TransformException("service call to buffer server failed");
   }
   throwOnError(srv.response.status);
+  if (cache_) {
+    cache_->setTransform(srv.response.transform, "unused_authority");
+  }
   return srv.response.transform;
 }
 
@@ -127,6 +146,14 @@ geometry_msgs::TransformStamped BufferClient::lookupTransform(
     const std::string& target_frame, const ros::Time& target_time,
     const std::string& source_frame, const ros::Time& source_time,
     const std::string& fixed_frame, const ros::Duration timeout) const {
+  if (cache_) {
+    try {
+      return cache_->lookupTransform(target_frame, target_time, source_frame,
+                                     source_time, fixed_frame);
+    } catch (const tf2::TransformException& exception) {
+      // Cache miss, proceed with service call.
+    }
+  }
   tf_service::LookupTransform srv;
   srv.request.target_frame = target_frame;
   srv.request.target_time = target_time;
@@ -144,6 +171,9 @@ geometry_msgs::TransformStamped BufferClient::lookupTransform(
     throw tf2::TransformException("service call to buffer server failed");
   }
   throwOnError(srv.response.status);
+  if (cache_) {
+    cache_->setTransform(srv.response.transform, "unused_authority");
+  }
   return srv.response.transform;
 }
 
@@ -152,6 +182,13 @@ bool BufferClient::canTransform(const std::string& target_frame,
                                 const ros::Time& time,
                                 const ros::Duration timeout,
                                 std::string* errstr) const {
+  if (cache_) {
+    try {
+      return cache_->canTransform(target_frame, source_frame, time, errstr);
+    } catch (const tf2::TransformException& exception) {
+      // Cache miss, proceed with service call.
+    }
+  }
   tf_service::CanTransform srv;
   srv.request.target_frame = target_frame;
   srv.request.source_frame = source_frame;
@@ -182,6 +219,14 @@ bool BufferClient::canTransform(const std::string& target_frame,
                                 const std::string& fixed_frame,
                                 const ros::Duration timeout,
                                 std::string* errstr) const {
+  if (cache_) {
+    try {
+      return cache_->canTransform(target_frame, target_time, source_frame,
+                                  source_time, fixed_frame, errstr);
+    } catch (const tf2::TransformException& exception) {
+      // Cache miss, proceed with service call.
+    }
+  }
   tf_service::CanTransform srv;
   srv.request.target_frame = target_frame;
   srv.request.target_time = target_time;

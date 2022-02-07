@@ -34,15 +34,22 @@ class BufferClient(tf2_ros.BufferInterface):
     """
 
     @translate_exceptions
-    def __init__(self, server_node_name):
+    def __init__(self, server_node_name, use_cache=False,
+                 cache_time=rospy.Duration(10)):
         """
         :param server_node_name: name of the tf_service server ROS node
+        :param use_cache: whether to cache lookup results inside the client
+        :param cache_time: max. age of transforms in the cache
         """
         tf2_ros.BufferInterface.__init__(self)
         # All actual work is done by the C++ binding.
         client_binding.roscpp_init_once()
-        self.client = client_binding.BufferClientBinding(server_node_name)
+        self.client = client_binding.BufferClientBinding(
+            server_node_name, use_cache, cache_time)
         rospy.on_shutdown(client_binding.roscpp_shutdown)
+
+    def clear_cache(self):
+        self.client.clear_cache()
 
     @translate_exceptions
     def wait_for_server(self, timeout=rospy.Duration(-1)):
