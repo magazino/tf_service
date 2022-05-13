@@ -105,6 +105,7 @@ void BufferClient::asyncReconnect(const ros::Duration timeout) {
     ROS_WARN("Already asynchronously reconnecting to server.");
     return;
   }
+  ROS_INFO("Asynchronously reconnecting to server.");
   async_reconnected_ =
       std::async(std::launch::async, &BufferClient::reconnect, this, timeout);
 }
