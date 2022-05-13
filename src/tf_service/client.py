@@ -56,6 +56,18 @@ class BufferClient(tf2_ros.BufferInterface):
         return self.client.wait_for_server(timeout)
 
     @translate_exceptions
+    def is_connected(self):
+        return self.client.is_connected()
+
+    @translate_exceptions
+    def reconnect(self, timeout=rospy.Duration(10)):
+        return self.client.reconnect(timeout)
+
+    @translate_exceptions
+    def async_reconnect(self, timeout=rospy.Duration(10)):
+        return self.client.async_reconnect(timeout)
+
+    @translate_exceptions
     def lookup_transform(self, target_frame, source_frame, time,
                          timeout=rospy.Duration(0.0)):
         """

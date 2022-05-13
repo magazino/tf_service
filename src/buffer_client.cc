@@ -76,11 +76,17 @@ BufferClient::BufferClient(const std::string& server_node_name)
 BufferClient::~BufferClient() { node_handle_.shutdown(); }
 
 bool BufferClient::reconnect(ros::Duration timeout) {
-  std::lock_guard<std::mutex> guard(mutex_);
+  std::unique_lock<std::mutex> reconnection_guard(reconnection_mutex_,
+                                                  std::try_to_lock);
+  if (!reconnection_guard.owns_lock()) {
+    ROS_WARN("Already reconnecting to server.");
+    return false;
+  }
   if (!can_transform_client_.waitForExistence(timeout)) {
     ROS_ERROR("Failed to connect to server.");
     return false;
   }
+  std::lock_guard<std::mutex> guard(mutex_);
   can_transform_client_ = node_handle_.serviceClient<tf_service::CanTransform>(
       can_transform_client_.getService(), true /* persistent */);
   lookup_transform_client_ =
@@ -90,6 +96,17 @@ bool BufferClient::reconnect(ros::Duration timeout) {
                    << lookup_transform_client_.getService() << " & "
                    << can_transform_client_.getService());
   return true;
+}
+
+void BufferClient::asyncReconnect(const ros::Duration timeout) {
+  if (async_reconnected_.valid() &&
+      async_reconnected_.wait_for(std::chrono::seconds(0)) !=
+          std::future_status::ready) {
+    ROS_WARN("Already asynchronously reconnecting to server.");
+    return;
+  }
+  async_reconnected_ =
+      std::async(std::launch::async, &BufferClient::reconnect, this, timeout);
 }
 
 bool BufferClient::isConnected() const {
