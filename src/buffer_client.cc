@@ -17,7 +17,6 @@
 #include "boost/filesystem.hpp"
 #include "tf2/exceptions.h"
 #include "tf2_msgs/TF2Error.h"
-
 #include "tf_service/CanTransform.h"
 #include "tf_service/LookupTransform.h"
 #include "tf_service/constants.h"
@@ -62,6 +61,7 @@ namespace tf_service {
 
 BufferClient::BufferClient(const std::string& server_node_name)
     : node_handle_(ros::NodeHandle()) {
+  std::lock_guard<std::mutex> reconnection_guard(reconnection_mutex_);
   const std::string can_transform_service_full =
       join(server_node_name, kCanTransformServiceName);
   can_transform_client_ = node_handle_.serviceClient<tf_service::CanTransform>(
@@ -73,17 +73,28 @@ BufferClient::BufferClient(const std::string& server_node_name)
           lookup_transform_service_full, true /* persistent */);
 }
 
+BufferClient::BufferClient(const std::string& server_node_name,
+                           const ros::Duration keepalive_period)
+    : BufferClient(server_node_name) {
+  keepalive_timer_ =
+      node_handle_.createTimer(keepalive_period, [&](const ::ros::TimerEvent&) {
+        if (!isConnected()) {
+          asyncReconnect(ros::Duration(-1));
+        }
+      });
+}
+
 BufferClient::~BufferClient() { node_handle_.shutdown(); }
 
 bool BufferClient::reconnect(ros::Duration timeout) {
   std::unique_lock<std::mutex> reconnection_guard(reconnection_mutex_,
                                                   std::try_to_lock);
   if (!reconnection_guard.owns_lock()) {
-    ROS_WARN("Already reconnecting to server.");
+    ROS_WARN("Already reconnecting to tf_service server.");
     return false;
   }
   if (!can_transform_client_.waitForExistence(timeout)) {
-    ROS_ERROR("Failed to connect to server.");
+    ROS_ERROR("Failed to connect to tf_service server.");
     return false;
   }
   std::lock_guard<std::mutex> guard(mutex_);
@@ -102,10 +113,10 @@ void BufferClient::asyncReconnect(const ros::Duration timeout) {
   if (async_reconnected_.valid() &&
       async_reconnected_.wait_for(std::chrono::seconds(0)) !=
           std::future_status::ready) {
-    ROS_WARN("Already asynchronously reconnecting to server.");
+    ROS_DEBUG("Already asynchronously reconnecting to server.");
     return;
   }
-  ROS_INFO("Asynchronously reconnecting to server.");
+  ROS_INFO("Asynchronously trying to reconnect to tf_service server.");
   async_reconnected_ =
       std::async(std::launch::async, &BufferClient::reconnect, this, timeout);
 }
