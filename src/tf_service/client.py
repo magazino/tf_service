@@ -16,8 +16,6 @@
 # from geometry2/tf2_ros/src/tf2_ros/buffer_client.py, which is
 # subject to a BSD License. See 3rdparty/geometry2_LICENSE for details.
 
-import typing
-
 import rospy
 # Importing tf2_geometry_msgs to register geometry_msgs
 # types with tf2_ros.TransformRegistration
@@ -35,13 +33,13 @@ class BufferClient(tf2_ros.BufferInterface):
     The interface is exactly the same as the old action-based client.
     """
     @translate_exceptions
-    def __init__(self, server_node_name: str,
-                 keepalive_period: typing.Optional[rospy.Duration] = None):
+    def __init__(self, server_node_name, keepalive_period=None):
         """
         :param server_node_name: name of the tf_service server ROS node
         :param keepalive_period:
-            periodically check the connection to the server
-            and try to reconnect in the background if it dropped
+            rospy.Duration defining how often to periodically check the
+            connection to the server and try to reconnect in the background
+            if it dropped
         """
         tf2_ros.BufferInterface.__init__(self)
         # All actual work is done by the C++ binding.
