@@ -93,8 +93,10 @@ bool BufferClient::reconnect(ros::Duration timeout) {
     ROS_WARN("Already reconnecting to tf_service server.");
     return false;
   }
+  ROS_INFO_STREAM("Waiting for " << can_transform_client_.getService()
+                                 << " to become available.");
   if (!can_transform_client_.waitForExistence(timeout)) {
-    ROS_ERROR("Failed to connect to tf_service server.");
+    ROS_ERROR_STREAM("Failed to connect to tf_service server.");
     return false;
   }
   std::lock_guard<std::mutex> guard(mutex_);
