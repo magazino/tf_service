@@ -83,6 +83,9 @@ PYBIND11_PLUGIN(client_binding) {
       .def("reconnect", &tfs::BufferClient::reconnect,
            /* doc strings for args */
            py::arg("timeout"))
+      .def("async_reconnect", &tfs::BufferClient::asyncReconnect,
+           /* doc strings for args */
+           py::arg("timeout"))
       .def("wait_for_server", &tfs::BufferClient::waitForServer,
            /* doc strings for args */
            py::arg("timeout"));

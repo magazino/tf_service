@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <future>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -27,7 +28,10 @@ class BufferClient : public tf2_ros::BufferInterface {
  public:
   BufferClient() = delete;
 
-  BufferClient(const std::string& server_node_name);
+  explicit BufferClient(const std::string& server_node_name);
+
+  BufferClient(const std::string& server_node_name,
+               const ros::Duration keepalive_period);
 
   ~BufferClient();
 
@@ -54,17 +58,22 @@ class BufferClient : public tf2_ros::BufferInterface {
                     std::string* errstr = NULL) const override;
 
   bool reconnect(ros::Duration timeout = ros::Duration(10));
+  void asyncReconnect(const ros::Duration timeout = ros::Duration(-1));
   bool isConnected() const;
   bool waitForServer(const ros::Duration timeout = ros::Duration(-1));
 
  private:
   mutable std::mutex mutex_;
+  mutable std::mutex reconnection_mutex_;
 
   ros::NodeHandle node_handle_;
 
   // mutable because ServiceClient::call() isn't const.
   mutable ros::ServiceClient can_transform_client_;     // GUARDED_BY(mutex_);
   mutable ros::ServiceClient lookup_transform_client_;  // GUARDED_BY(mutex_);
+
+  std::future<bool> async_reconnected_;
+  ros::Timer keepalive_timer_;
 };
 
 }  // namespace tf_service

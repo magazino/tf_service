@@ -6,7 +6,8 @@
 
   <!-- Server -->
   <node name="tf_service" pkg="tf_service"
-        type="server" args="--num_threads 5" output="screen" required="true" />
+        type="server" args="--num_threads 5" output="screen" respawn="true"
+        respawn_delay="5" />
 
   <!-- Test node -->
   <test test-name="client_rostest_py" pkg="tf_service"

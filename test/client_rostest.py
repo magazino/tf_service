@@ -17,6 +17,7 @@
 
 import unittest
 
+import rosnode
 import rospy
 import tf2_ros
 
@@ -83,7 +84,19 @@ class ClientRostest(unittest.TestCase):
                                          rospy.Time(0), "bla",
                                          rospy.Duration(0.1))
 
+    def test_keepalive(self):
+        buffer = tf_service.BufferClient(EXPECTED_SERVER_NAME,
+                                         keepalive_period=rospy.Duration(1))
+        self.assertTrue(buffer.wait_for_server(rospy.Duration(0.1)))
+        # Assuming the server respawns after ~5 seconds.
+        rosnode.kill_nodes(node_names=[EXPECTED_SERVER_NAME])
+        rospy.sleep(1)
+        self.assertFalse(buffer.is_connected())
+        rospy.sleep(10)
+        self.assertTrue(buffer.is_connected())
+
 
 if __name__ == "__main__":
     import rostest
+    rospy.init_node("client_rostest_py")
     rostest.rosrun("tf_service", "client_rostest_py", ClientRostest)
