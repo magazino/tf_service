@@ -2,6 +2,17 @@
 Changelog for package tf_service
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.7.0 (2022-07-14)
+------------------
+* Log the name of the service that we wait for.
+* Test keepalive in Python rostest.
+* Remove type hints for Melodic compatibility (for now...)
+* Implement optional 'keepalive'.
+* Loh message when reconnecting asynchronously.
+* Add async reconnection method to client.
+  Can be called by application code to reconnect without blocking if the
+  service connection was lost.
+
 0.6.3 (2021-08-11)
 ------------------
 * Remove travis config and update build badge.
