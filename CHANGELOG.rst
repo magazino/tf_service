@@ -2,6 +2,10 @@
 Changelog for package tf_service
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.0 (2025-04-30)
+------------------
+* Add maintainer
+
 0.7.0 (2022-07-14)
 ------------------
 * Log the name of the service that we wait for.
