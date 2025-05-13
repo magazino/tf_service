@@ -33,12 +33,12 @@ class ClientRostest(unittest.TestCase):
     def test_wait_for_server_succeeds(self):
         buffer = tf_service.BufferClient(EXPECTED_SERVER_NAME)
         self.assertTrue(buffer.wait_for_server(rospy.Duration(0.1)))
-        self.assertTrue(buffer.client.is_connected())
+        self.assertTrue(buffer.is_connected())
 
     def test_wait_for_server_fails(self):
         buffer = tf_service.BufferClient("/wrong_server_name")
         self.assertFalse(buffer.wait_for_server(rospy.Duration(0.1)))
-        self.assertFalse(buffer.client.is_connected())
+        self.assertFalse(buffer.is_connected())
 
     def test_can_transform(self):
         buffer = tf_service.BufferClient(EXPECTED_SERVER_NAME)
