@@ -22,9 +22,6 @@ find_package(catkin REQUIRED COMPONENTS ${PACKAGE_DEPENDENCIES})
 
 find_package(Boost REQUIRED COMPONENTS filesystem program_options)
 
-# pybind11 is header-only.
-find_package(pybind11)
-
 
 ##############
 ## setup.py ##
@@ -89,19 +86,6 @@ add_dependencies(${PROJECT_NAME}
 )
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${catkin_INCLUDE_DIRS})
 
-# Python bindings
-# TODO chooses Python version automatically?
-pybind11_add_module(client_binding src/python_bindings/buffer_client_py.cc)
-target_include_directories(client_binding SYSTEM PRIVATE ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
-target_link_libraries(client_binding PRIVATE
-  ${PROJECT_NAME}
-  ${catkin_LIBRARIES}
-  ${Boost_LIBRARIES}
-)
-# See: http://wiki.ros.org/catkin/CMakeLists.txt#Custom_output_directory
-set_target_properties(client_binding PROPERTIES
-  LIBRARY_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_PYTHON_DESTINATION}
-)
 
 # server executable
 add_executable(server src/server_main.cc)
@@ -133,11 +117,6 @@ install(TARGETS ${PROJECT_NAME}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
 )
 
-install(TARGETS client_binding
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
-)
-
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h"
@@ -164,7 +143,7 @@ if(CATKIN_ENABLE_TESTING)
     test/client_rostest.py
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
   )
-  add_rostest(test/client_rostest_py.launch DEPENDENCIES ${PROJECT_NAME} server client_binding)
+  add_rostest(test/client_rostest_py.launch DEPENDENCIES ${PROJECT_NAME} server)
   
   # C++
   add_rostest_gtest(client_rostest test/client_rostest.launch test/client_rostest.cc)
