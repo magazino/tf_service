@@ -71,14 +71,16 @@ def _init_transport(proxy: rospy.ServiceProxy) -> bool:
     try:
         service_uri = proxy._get_service_uri(proxy.request_class())
         dest_addr, dest_port = rospy.core.parse_rosrpc_uri(service_uri)
-    except rospy.ServiceException:
+    except rospy.ServiceException as error:
+        rospy.logerr(str(error))
         return False
 
-    transport = TCPROSTransport(proxy.protocol, proxy.resolved_name)
-    transport.buff_size = proxy.buff_size
     try:
+        transport = TCPROSTransport(proxy.protocol, proxy.resolved_name)
+        transport.buff_size = proxy.buff_size
         transport.connect(dest_addr, dest_port, service_uri)
-    except TransportInitError:
+    except TransportInitError as error:
+        rospy.logerr(str(error))
         return False
 
     return True
