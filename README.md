@@ -4,7 +4,7 @@ TF buffer server / client implementation based on ROS services.
 
 Implemented in C++ and Python.
 
-| ROS noetic / melodic |
+| ROS 1 |
 | :---: |
 | [![Build Status](https://github.com/magazino/tf_service/actions/workflows/main.yml/badge.svg)](https://github.com/magazino/tf_service/actions) |
 
