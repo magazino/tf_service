@@ -84,7 +84,7 @@ class BufferClient(tf2_ros.BufferInterface):
                 keepalive_period, self._keepalive_callback, reset=True
             )
 
-    def wait_for_server(self, timeout: rospy.Duration = rospy.Duration(-1)) -> bool:
+    def wait_for_server(self, timeout: Optional[rospy.Duration] = None) -> bool:
         """
         Block until the server is ready to respond to requests and reconnect.
 
@@ -102,7 +102,7 @@ class BufferClient(tf2_ros.BufferInterface):
             and self._lookup_transform_client.is_valid()
         )
 
-    def reconnect(self, timeout: rospy.Duration = rospy.Duration(10)) -> bool:
+    def reconnect(self, timeout: Optional[rospy.Duration] = None) -> bool:
         if self.is_connected():
             return True
 
