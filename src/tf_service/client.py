@@ -22,17 +22,15 @@ import threading
 from typing import Optional
 
 import rospy
-import rospy.core
 
 # Importing tf2_geometry_msgs to register geometry_msgs
 # types with tf2_ros.TransformRegistration
 import tf2_geometry_msgs  # pylint: disable=unused-import
 import tf2_ros
 from geometry_msgs.msg import TransformStamped
-from rospy.exceptions import TransportInitError
-from rospy.impl.tcpros_base import TCPROSTransport
-from tf2_msgs.msg import TF2Error
 
+from tf_service.exceptions import throw_on_error
+from tf_service.persistent_service import PersistentService
 from tf_service.srv import (
     CanTransform,
     CanTransformRequest,
@@ -44,58 +42,6 @@ from tf_service.srv import (
 
 CAN_TRANSFORM_SERVICE_NAME = "can_transform"
 LOOKUP_TRANSFORM_SERVICE_NAME = "lookup_transform"
-
-
-def _throw_on_error(status: TF2Error) -> None:
-    if status.error == TF2Error.CONNECTIVITY_ERROR:
-        raise tf2_ros.ConnectivityException(status.error_string)
-    if status.error == TF2Error.EXTRAPOLATION_ERROR:
-        raise tf2_ros.ExtrapolationException(status.error_string)
-    if status.error == TF2Error.INVALID_ARGUMENT_ERROR:
-        raise tf2_ros.InvalidArgumentException(status.error_string)
-    if status.error == TF2Error.LOOKUP_ERROR:
-        raise tf2_ros.LookupException(status.error_string)
-    if status.error == TF2Error.TIMEOUT_ERROR:
-        raise tf2_ros.TimeoutException(status.error_string)
-    if status.error == TF2Error.TRANSFORM_ERROR:
-        raise tf2_ros.TransformException(status.error_string)
-
-
-def _init_transport(proxy: rospy.ServiceProxy) -> bool:
-    """
-    Transport initialization of persistent rospy service is deferred to first
-    time call() is called.
-    This function allows to establish the transport independently of call().
-    """
-    if proxy.transport is not None:
-        return True
-
-    try:
-        service_uri = proxy._get_service_uri(proxy.request_class())
-        dest_addr, dest_port = rospy.core.parse_rosrpc_uri(service_uri)
-    except rospy.ServiceException as error:
-        rospy.logerr(str(error))
-        return False
-
-    try:
-        transport = TCPROSTransport(proxy.protocol, proxy.resolved_name)
-        transport.buff_size = proxy.buff_size
-        transport.connect(dest_addr, dest_port, service_uri)
-    except TransportInitError as error:
-        rospy.logerr(str(error))
-        return False
-
-    return True
-
-
-def _is_valid(proxy: rospy.ServiceProxy) -> bool:
-    """
-    rospy doesn't have an equivalent of ros::ServiceClient::isValid().
-    This should do the trick instead...
-    """
-    if proxy.transport is None:
-        return _init_transport(proxy)
-    return not proxy.transport.done
 
 
 class BufferClient(tf2_ros.BufferInterface):
@@ -126,22 +72,19 @@ class BufferClient(tf2_ros.BufferInterface):
         )
 
         with self._reconnection_mutex:
-            self._can_transform_client = rospy.ServiceProxy(
-                can_transform_service_full, CanTransform, persistent=True
+            self._can_transform_client = PersistentService(
+                can_transform_service_full, CanTransform
             )
-            _init_transport(self._can_transform_client)
-
-            self._lookup_transform_client = rospy.ServiceProxy(
-                lookup_transform_service_full, LookupTransform, persistent=True
+            self._lookup_transform_client = PersistentService(
+                lookup_transform_service_full, LookupTransform
             )
-            _init_transport(self._lookup_transform_client)
 
         if keepalive_period is not None:
             self._keepalive_timer = rospy.Timer(
                 keepalive_period, self._keepalive_callback, reset=True
             )
 
-    def wait_for_server(self, timeout: rospy.Duration) -> bool:
+    def wait_for_server(self, timeout: rospy.Duration = rospy.Duration(-1)) -> bool:
         """
         Block until the server is ready to respond to requests and reconnect.
 
@@ -154,8 +97,9 @@ class BufferClient(tf2_ros.BufferInterface):
         return self.reconnect(timeout)
 
     def is_connected(self) -> bool:
-        return _is_valid(self._can_transform_client) and _is_valid(
-            self._lookup_transform_client
+        return (
+            self._can_transform_client.is_valid()
+            and self._lookup_transform_client.is_valid()
         )
 
     def reconnect(self, timeout: rospy.Duration = rospy.Duration(10)) -> bool:
@@ -177,16 +121,13 @@ class BufferClient(tf2_ros.BufferInterface):
                 rospy.logerr("Failed to connect to tf_service server.")
                 return False
 
-            self._can_transform_client = rospy.ServiceProxy(
-                self._can_transform_client.resolved_name, CanTransform, persistent=True
+            self._can_transform_client = PersistentService(
+                self._can_transform_client.resolved_name, CanTransform
             )
-            _init_transport(self._can_transform_client)
-            self._lookup_transform_client = rospy.ServiceProxy(
-                self._lookup_transform_client.resolved_name,
-                LookupTransform,
-                persistent=True,
+            self._lookup_transform_client = PersistentService(
+                self._lookup_transform_client.resolved_name, LookupTransform
             )
-            _init_transport(self._lookup_transform_client)
+
         rospy.loginfo(
             "Connected to services %s & %s",
             self._can_transform_client.resolved_name,
@@ -234,7 +175,7 @@ class BufferClient(tf2_ros.BufferInterface):
                 response: LookupTransformResponse = self._lookup_transform_client.call(
                     request
                 )
-                _throw_on_error(response.status)
+                throw_on_error(response.status)
                 return response.transform
             except (rospy.ROSException, rospy.ServiceException):
                 raise tf2_ros.TransformException("service call to buffer server failed")
@@ -274,7 +215,7 @@ class BufferClient(tf2_ros.BufferInterface):
                 response: LookupTransformResponse = self._lookup_transform_client.call(
                     request
                 )
-                _throw_on_error(response.status)
+                throw_on_error(response.status)
                 return response.transform
             except (rospy.ROSException, rospy.ServiceException):
                 raise tf2_ros.TransformException("service call to buffer server failed")
