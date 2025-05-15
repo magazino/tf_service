@@ -3,6 +3,12 @@ from ros:noetic
 RUN mkdir -p catkin_ws/src/tf_service
 COPY . catkin_ws/src/tf_service
 
+# Check typing with mypy.
+RUN apt-get update
+RUN apt-get install python3-pip --yes
+RUN pip3 install mypy
+RUN mypy --ignore-missing-imports catkin_ws/src/tf_service
+
 # Build and test.
 RUN bash catkin_ws/src/tf_service/.ci/docker_build_catkin_ws.sh
 
