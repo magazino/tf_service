@@ -19,6 +19,7 @@
 import asyncio
 import os
 import threading
+from typing import Optional
 
 import rospy
 import rospy.core
@@ -27,6 +28,7 @@ import rospy.core
 # types with tf2_ros.TransformRegistration
 import tf2_geometry_msgs  # pylint: disable=unused-import
 import tf2_ros
+from geometry_msgs.msg import TransformStamped
 from rospy.exceptions import TransportInitError
 from rospy.impl.tcpros_base import TCPROSTransport
 from tf2_msgs.msg import TF2Error
@@ -101,7 +103,9 @@ class BufferClient(tf2_ros.BufferInterface):
     tf_service buffer client, can be used like any other TF BufferInterface.
     """
 
-    def __init__(self, server_node_name, keepalive_period=None):
+    def __init__(
+        self, server_node_name: str, keepalive_period: Optional[rospy.Duration] = None
+    ) -> None:
         """
         :param server_node_name: name of the tf_service server ROS node
         :param keepalive_period:
@@ -114,18 +118,19 @@ class BufferClient(tf2_ros.BufferInterface):
         self._mutex = threading.Lock()
         self._reconnection_mutex = threading.Lock()
 
+        can_transform_service_full: str = os.path.join(
+            server_node_name, CAN_TRANSFORM_SERVICE_NAME
+        )
+        lookup_transform_service_full: str = os.path.join(
+            server_node_name, LOOKUP_TRANSFORM_SERVICE_NAME
+        )
+
         with self._reconnection_mutex:
-            can_transform_service_full = os.path.join(
-                server_node_name, CAN_TRANSFORM_SERVICE_NAME
-            )
             self._can_transform_client = rospy.ServiceProxy(
                 can_transform_service_full, CanTransform, persistent=True
             )
             _init_transport(self._can_transform_client)
 
-            lookup_transform_service_full = os.path.join(
-                server_node_name, LOOKUP_TRANSFORM_SERVICE_NAME
-            )
             self._lookup_transform_client = rospy.ServiceProxy(
                 lookup_transform_service_full, LookupTransform, persistent=True
             )
@@ -153,7 +158,7 @@ class BufferClient(tf2_ros.BufferInterface):
             self._lookup_transform_client
         )
 
-    def reconnect(self, timeout=rospy.Duration(10)) -> bool:
+    def reconnect(self, timeout: rospy.Duration = rospy.Duration(10)) -> bool:
         if self.is_connected():
             return True
 
@@ -189,20 +194,24 @@ class BufferClient(tf2_ros.BufferInterface):
         )
         return True
 
-    async def async_reconnect(self, timeout=None):
+    async def async_reconnect(self, timeout: Optional[rospy.Duration] = None) -> None:
         if self._reconnection_mutex.locked():
             rospy.logdebug("Already asynchronously reconnecting to server.")
             return
         rospy.loginfo("Asynchronously trying to reconnect to tf_service server.")
         self.reconnect(timeout)
 
-    def _keepalive_callback(self, _):
+    def _keepalive_callback(self, _) -> None:
         if not self.is_connected():
             asyncio.run(self.async_reconnect())
 
     def lookup_transform(
-        self, target_frame, source_frame, time, timeout=rospy.Duration(0.0)
-    ):
+        self,
+        target_frame: str,
+        source_frame: str,
+        time: rospy.Time,
+        timeout: rospy.Duration = rospy.Duration(0.0),
+    ) -> TransformStamped:
         """
         Get the transform from the source frame to the target frame.
 
@@ -232,13 +241,13 @@ class BufferClient(tf2_ros.BufferInterface):
 
     def lookup_transform_full(
         self,
-        target_frame,
-        target_time,
-        source_frame,
-        source_time,
-        fixed_frame,
-        timeout=rospy.Duration(0.0),
-    ):
+        target_frame: str,
+        target_time: rospy.Time,
+        source_frame: str,
+        source_time: rospy.Time,
+        fixed_frame: str,
+        timeout: rospy.Time = rospy.Duration(0.0),
+    ) -> TransformStamped:
         """
         Get the transform from the source frame to the target frame using the advanced API.
 
@@ -271,8 +280,12 @@ class BufferClient(tf2_ros.BufferInterface):
                 raise tf2_ros.TransformException("service call to buffer server failed")
 
     def can_transform(
-        self, target_frame, source_frame, time, timeout=rospy.Duration(0.0)
-    ):
+        self,
+        target_frame: str,
+        source_frame: str,
+        time: rospy.Time,
+        timeout: rospy.Duration = rospy.Duration(0.0),
+    ) -> bool:
         """
         Check if a transform from the source frame to the target frame is possible.
 
@@ -302,13 +315,13 @@ class BufferClient(tf2_ros.BufferInterface):
 
     def can_transform_full(
         self,
-        target_frame,
-        target_time,
-        source_frame,
-        source_time,
-        fixed_frame,
-        timeout=rospy.Duration(0.0),
-    ):
+        target_frame: str,
+        target_time: rospy.Time,
+        source_frame: str,
+        source_time: rospy.Time,
+        fixed_frame: str,
+        timeout: rospy.Duration = rospy.Duration(0.0),
+    ) -> bool:
         """
         Check if a transform from the source frame to the target frame is possible (advanced API).
 
