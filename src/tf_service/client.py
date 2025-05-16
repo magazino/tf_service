@@ -194,7 +194,7 @@ class BufferClient(tf2_ros.BufferInterface):
         source_frame: str,
         source_time: rospy.Time,
         fixed_frame: str,
-        timeout: rospy.Time = rospy.Duration(0.0),
+        timeout: rospy.Duration = rospy.Duration(0.0),
     ) -> TransformStamped:
         """
         Get the transform from the source frame to the target frame using the advanced API.
