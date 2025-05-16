@@ -16,9 +16,10 @@ import typing
 
 import rospy
 import rospy.core
-
 from rospy.exceptions import TransportInitError
 from rospy.impl.tcpros_base import TCPROSTransport
+
+PING_TIMEOUT = 0.1
 
 
 class PersistentService(rospy.ServiceProxy):
@@ -27,6 +28,9 @@ class PersistentService(rospy.ServiceProxy):
     """
 
     def __init__(self, name: str, service_class: typing.Any) -> None:
+        # Re-declaration with typing to make mypy happy:
+        self.transport: typing.Optional[TCPROSTransport] = None
+
         super().__init__(name, service_class, persistent=True)
         self.init_transport()
 
@@ -36,8 +40,22 @@ class PersistentService(rospy.ServiceProxy):
         This should do the trick instead...
         """
         if self.transport is None:
-            return self.init_transport()
-        return not self.transport.done
+            return False
+
+        # With a persistent service, the self.transport is kept after service calls.
+        # Transport loss is only noticed when something is transmitted.
+        # "Ping" the remote address with a header handshake to check if it's alive.
+        dest_addr, dest_port = self.transport.dest_address
+        try:
+            self.transport.connect(
+                dest_addr, dest_port, self.transport.endpoint_id, timeout=PING_TIMEOUT
+            )
+        except TransportInitError as e:
+            rospy.logerr("Lost connection to %s", self.resolved_name)
+            self.transport = None
+            return False
+
+        return True
 
     def init_transport(self) -> bool:
         """
@@ -59,6 +77,8 @@ class PersistentService(rospy.ServiceProxy):
             transport = TCPROSTransport(self.protocol, self.resolved_name)
             transport.buff_size = self.buff_size
             transport.connect(dest_addr, dest_port, service_uri)
+            if self.persistent:
+                self.transport = transport
         except TransportInitError as error:
             rospy.logerr(str(error))
             return False
