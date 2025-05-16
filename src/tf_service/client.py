@@ -61,7 +61,6 @@ class BufferClient(tf2_ros.BufferInterface):
         """
         tf2_ros.BufferInterface.__init__(self)
 
-        self._mutex = threading.Lock()
         self._reconnection_mutex = threading.Lock()
 
         can_transform_service_full: str = os.path.join(
@@ -172,22 +171,21 @@ class BufferClient(tf2_ros.BufferInterface):
         request.timeout = timeout
         request.advanced = False
 
-        with self._mutex:
-            try:
-                response: LookupTransformResponse = self._lookup_transform_client.call(
-                    request
-                )
-                throw_on_error(response.status)
-                return response.transform
-            except (
-                rospy.ROSException,
-                rospy.ServiceException,
-                BrokenPipeError,
-                AttributeError,
-            ) as error:
-                raise tf2_ros.TransformException(
-                    f"service call to buffer server failed: {error}"
-                )
+        try:
+            response: LookupTransformResponse = self._lookup_transform_client.call(
+                request
+            )
+            throw_on_error(response.status)
+            return response.transform
+        except (
+            rospy.ROSException,
+            rospy.ServiceException,
+            BrokenPipeError,
+            AttributeError,
+        ) as error:
+            raise tf2_ros.TransformException(
+                f"service call to buffer server failed: {error}"
+            )
 
     def lookup_transform_full(
         self,
@@ -219,22 +217,21 @@ class BufferClient(tf2_ros.BufferInterface):
         request.timeout = timeout
         request.advanced = True
 
-        with self._mutex:
-            try:
-                response: LookupTransformResponse = self._lookup_transform_client.call(
-                    request
-                )
-                throw_on_error(response.status)
-                return response.transform
-            except (
-                rospy.ROSException,
-                rospy.ServiceException,
-                BrokenPipeError,
-                AttributeError,
-            ) as error:
-                raise tf2_ros.TransformException(
-                    f"service call to buffer server failed: {error}"
-                )
+        try:
+            response: LookupTransformResponse = self._lookup_transform_client.call(
+                request
+            )
+            throw_on_error(response.status)
+            return response.transform
+        except (
+            rospy.ROSException,
+            rospy.ServiceException,
+            BrokenPipeError,
+            AttributeError,
+        ) as error:
+            raise tf2_ros.TransformException(
+                f"service call to buffer server failed: {error}"
+            )
 
     def can_transform(
         self,
@@ -261,21 +258,18 @@ class BufferClient(tf2_ros.BufferInterface):
         request.timeout = timeout
         request.advanced = False
 
-        with self._mutex:
-            try:
-                response: CanTransformResponse = self._can_transform_client.call(
-                    request
-                )
-                return response.can_transform
-            except (
-                rospy.ROSException,
-                rospy.ServiceException,
-                BrokenPipeError,
-                AttributeError,
-            ) as error:
-                raise tf2_ros.TransformException(
-                    f"service call to buffer server failed: {error}"
-                )
+        try:
+            response: CanTransformResponse = self._can_transform_client.call(request)
+            return response.can_transform
+        except (
+            rospy.ROSException,
+            rospy.ServiceException,
+            BrokenPipeError,
+            AttributeError,
+        ) as error:
+            raise tf2_ros.TransformException(
+                f"service call to buffer server failed: {error}"
+            )
 
     def can_transform_full(
         self,
@@ -310,18 +304,15 @@ class BufferClient(tf2_ros.BufferInterface):
         request.timeout = timeout
         request.advanced = True
 
-        with self._mutex:
-            try:
-                response: CanTransformResponse = self._can_transform_client.call(
-                    request
-                )
-                return response.can_transform
-            except (
-                rospy.ROSException,
-                rospy.ServiceException,
-                BrokenPipeError,
-                AttributeError,
-            ) as error:
-                raise tf2_ros.TransformException(
-                    f"service call to buffer server failed: {error}"
-                )
+        try:
+            response: CanTransformResponse = self._can_transform_client.call(request)
+            return response.can_transform
+        except (
+            rospy.ROSException,
+            rospy.ServiceException,
+            BrokenPipeError,
+            AttributeError,
+        ) as error:
+            raise tf2_ros.TransformException(
+                f"service call to buffer server failed: {error}"
+            )
