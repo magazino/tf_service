@@ -28,6 +28,7 @@ import rospy
 import tf2_geometry_msgs  # pylint: disable=unused-import
 import tf2_ros
 from geometry_msgs.msg import TransformStamped
+from rospy.exceptions import TransportTerminated
 
 from tf_service.exceptions import throw_on_error
 from tf_service.persistent_service import PersistentService
@@ -43,6 +44,16 @@ from tf_service.srv import (
 CAN_TRANSFORM_SERVICE_NAME = "can_transform"
 LOOKUP_TRANSFORM_SERVICE_NAME = "lookup_transform"
 DEFAULT_PING_TIMEOUT = rospy.Duration.from_sec(0.1)
+
+# rospy can throw different exceptions depending on when / how the connection
+# to the server is lost:
+CONNECTION_LOST_ERRORS = (
+    rospy.ROSException,
+    rospy.ServiceException,
+    TransportTerminated,
+    BrokenPipeError,
+    AttributeError,
+)
 
 
 class BufferClient(tf2_ros.BufferInterface):
@@ -188,12 +199,7 @@ class BufferClient(tf2_ros.BufferInterface):
             )
             throw_on_error(response.status)
             return response.transform
-        except (
-            rospy.ROSException,
-            rospy.ServiceException,
-            BrokenPipeError,
-            AttributeError,
-        ) as error:
+        except CONNECTION_LOST_ERRORS as error:
             raise tf2_ros.TransformException(
                 f"service call to buffer server failed: {error}"
             )
@@ -234,12 +240,7 @@ class BufferClient(tf2_ros.BufferInterface):
             )
             throw_on_error(response.status)
             return response.transform
-        except (
-            rospy.ROSException,
-            rospy.ServiceException,
-            BrokenPipeError,
-            AttributeError,
-        ) as error:
+        except CONNECTION_LOST_ERRORS as error:
             raise tf2_ros.TransformException(
                 f"service call to buffer server failed: {error}"
             )
@@ -272,12 +273,7 @@ class BufferClient(tf2_ros.BufferInterface):
         try:
             response: CanTransformResponse = self._can_transform_client.call(request)
             return response.can_transform
-        except (
-            rospy.ROSException,
-            rospy.ServiceException,
-            BrokenPipeError,
-            AttributeError,
-        ) as error:
+        except CONNECTION_LOST_ERRORS as error:
             raise tf2_ros.TransformException(
                 f"service call to buffer server failed: {error}"
             )
@@ -318,12 +314,7 @@ class BufferClient(tf2_ros.BufferInterface):
         try:
             response: CanTransformResponse = self._can_transform_client.call(request)
             return response.can_transform
-        except (
-            rospy.ROSException,
-            rospy.ServiceException,
-            BrokenPipeError,
-            AttributeError,
-        ) as error:
+        except CONNECTION_LOST_ERRORS as error:
             raise tf2_ros.TransformException(
                 f"service call to buffer server failed: {error}"
             )
