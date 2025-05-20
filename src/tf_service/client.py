@@ -186,12 +186,13 @@ class BufferClient(tf2_ros.BufferInterface):
         :return: The transform between the frames.
         :rtype: :class:`geometry_msgs.msg.TransformStamped`
         """
-        request = LookupTransformRequest()
-        request.target_frame = target_frame
-        request.source_frame = source_frame
-        request.time = time
-        request.timeout = timeout
-        request.advanced = False
+        request = LookupTransformRequest(
+            target_frame=target_frame,
+            source_frame=source_frame,
+            time=time,
+            timeout=timeout,
+            advanced=False,
+        )
 
         try:
             response: LookupTransformResponse = self._lookup_transform_client.call(
@@ -225,14 +226,15 @@ class BufferClient(tf2_ros.BufferInterface):
         :return: The transform between the frames.
         :rtype: :class:`geometry_msgs.msg.TransformStamped`
         """
-        request = LookupTransformRequest()
-        request.target_frame = target_frame
-        request.target_time = target_time
-        request.source_frame = source_frame
-        request.source_time = source_time
-        request.fixed_frame = fixed_frame
-        request.timeout = timeout
-        request.advanced = True
+        request = LookupTransformRequest(
+            target_frame=target_frame,
+            target_time=target_time,
+            source_frame=source_frame,
+            source_time=source_time,
+            fixed_frame=fixed_frame,
+            timeout=timeout,
+            advanced=True,
+        )
 
         try:
             response: LookupTransformResponse = self._lookup_transform_client.call(
@@ -263,12 +265,13 @@ class BufferClient(tf2_ros.BufferInterface):
         :return: True if the transform is possible, false otherwise.
         :rtype: bool
         """
-        request = CanTransformRequest()
-        request.target_frame = target_frame
-        request.source_frame = source_frame
-        request.time = time
-        request.timeout = timeout
-        request.advanced = False
+        request = CanTransformRequest(
+            target_frame=target_frame,
+            source_frame=source_frame,
+            time=time,
+            timeout=timeout,
+            advanced=False,
+        )
 
         try:
             response: CanTransformResponse = self._can_transform_client.call(request)
@@ -302,14 +305,15 @@ class BufferClient(tf2_ros.BufferInterface):
         :return: True if the transform is possible, false otherwise.
         :rtype: bool
         """
-        request = CanTransformRequest()
-        request.target_frame = target_frame
-        request.target_time = target_time
-        request.source_frame = source_frame
-        request.source_time = source_time
-        request.fixed_frame = fixed_frame
-        request.timeout = timeout
-        request.advanced = True
+        request = CanTransformRequest(
+            target_frame=target_frame,
+            target_time=target_time,
+            source_frame=source_frame,
+            source_time=source_time,
+            fixed_frame=fixed_frame,
+            timeout=timeout,
+            advanced=True,
+        )
 
         try:
             response: CanTransformResponse = self._can_transform_client.call(request)
