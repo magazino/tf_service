@@ -19,17 +19,18 @@ import rospy.core
 from rospy.exceptions import TransportInitError
 from rospy.impl.tcpros_base import TCPROSTransport
 
-PING_TIMEOUT = 0.1
-
 
 class PersistentService(rospy.ServiceProxy):
     """
     Persistent service proxy with extensions that are missing from rospy.
     """
 
-    def __init__(self, name: str, service_class: typing.Any) -> None:
+    def __init__(
+        self, name: str, service_class: typing.Any, ping_timeout: rospy.Duration
+    ) -> None:
         # Re-declaration with typing to make mypy happy:
         self.transport: typing.Optional[TCPROSTransport] = None
+        self.ping_timeout: float = ping_timeout.to_sec()
 
         super().__init__(name, service_class, persistent=True)
         self.init_transport()
@@ -48,7 +49,10 @@ class PersistentService(rospy.ServiceProxy):
         dest_addr, dest_port = self.transport.dest_address
         try:
             self.transport.connect(
-                dest_addr, dest_port, self.transport.endpoint_id, timeout=PING_TIMEOUT
+                dest_addr,
+                dest_port,
+                self.transport.endpoint_id,
+                timeout=self.ping_timeout,
             )
         except TransportInitError as e:
             rospy.logerr("Lost connection to %s", self.resolved_name)
@@ -80,7 +84,7 @@ class PersistentService(rospy.ServiceProxy):
             if self.persistent:
                 self.transport = transport
         except TransportInitError as error:
-            rospy.logerr(str(error))
+            rospy.logerr("%s", error)
             return False
 
         return True

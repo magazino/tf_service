@@ -42,6 +42,7 @@ from tf_service.srv import (
 
 CAN_TRANSFORM_SERVICE_NAME = "can_transform"
 LOOKUP_TRANSFORM_SERVICE_NAME = "lookup_transform"
+DEFAULT_PING_TIMEOUT = rospy.Duration.from_sec(0.1)
 
 
 class BufferClient(tf2_ros.BufferInterface):
@@ -50,7 +51,10 @@ class BufferClient(tf2_ros.BufferInterface):
     """
 
     def __init__(
-        self, server_node_name: str, keepalive_period: Optional[rospy.Duration] = None
+        self,
+        server_node_name: str,
+        keepalive_period: Optional[rospy.Duration] = None,
+        ping_timeout: Optional[rospy.Duration] = DEFAULT_PING_TIMEOUT,
     ) -> None:
         """
         :param server_node_name: name of the tf_service server ROS node
@@ -58,10 +62,13 @@ class BufferClient(tf2_ros.BufferInterface):
             rospy.Duration defining how often to periodically check the
             connection to the server and try to reconnect in the background
             if it dropped
+        :param ping_timeout: rospy.Duration defining how long to wait for
+            a response from the server before assuming that it's unreachable
         """
         tf2_ros.BufferInterface.__init__(self)
 
         self._reconnection_mutex = threading.Lock()
+        self._ping_timeout = ping_timeout
 
         can_transform_service_full: str = os.path.join(
             server_node_name, CAN_TRANSFORM_SERVICE_NAME
@@ -72,10 +79,10 @@ class BufferClient(tf2_ros.BufferInterface):
 
         with self._reconnection_mutex:
             self._can_transform_client = PersistentService(
-                can_transform_service_full, CanTransform
+                can_transform_service_full, CanTransform, self._ping_timeout
             )
             self._lookup_transform_client = PersistentService(
-                lookup_transform_service_full, LookupTransform
+                lookup_transform_service_full, LookupTransform, self._ping_timeout
             )
 
         if keepalive_period is not None:
@@ -123,10 +130,14 @@ class BufferClient(tf2_ros.BufferInterface):
                 return False
 
             self._can_transform_client = PersistentService(
-                self._can_transform_client.resolved_name, CanTransform
+                self._can_transform_client.resolved_name,
+                CanTransform,
+                self._ping_timeout,
             )
             self._lookup_transform_client = PersistentService(
-                self._lookup_transform_client.resolved_name, LookupTransform
+                self._lookup_transform_client.resolved_name,
+                LookupTransform,
+                self._ping_timeout,
             )
 
         rospy.loginfo(
