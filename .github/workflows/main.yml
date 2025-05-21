@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        dockerfile: ['Dockerfile.melodic', 'Dockerfile.noetic']
+        dockerfile: ['Dockerfile.noetic']
 
     steps:
       - uses: actions/checkout@v2

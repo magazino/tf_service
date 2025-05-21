@@ -2,9 +2,9 @@
 
 TF buffer server / client implementation based on ROS services.
 
-Implemented in C++ and Python bindings.
+Implemented in C++ and Python.
 
-| ROS noetic / melodic |
+| ROS 1 |
 | :---: |
 | [![Build Status](https://github.com/magazino/tf_service/actions/workflows/main.yml/badge.svg)](https://github.com/magazino/tf_service/actions) |
 
@@ -55,7 +55,7 @@ The client implements the normal TF2 buffer interface.
 
 ### Python
 
-The Python bindings are wrapped in a standard `tf2_ros.BufferInterface`:
+The Python client is wrapped in a standard `tf2_ros.BufferInterface`:
 
 ```python
 import rospy                                                         
