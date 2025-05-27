@@ -81,6 +81,11 @@ class BufferClient(tf2_ros.BufferInterface):
         self._reconnection_mutex = threading.Lock()
         self._ping_timeout = ping_timeout
 
+        # rospy's persistent service seems to be not robust against concurrent requests.
+        # We use a mutex to enforce sequential requests on the same TCPROS transport.
+        # See also comment in SW-94205.
+        self._mutex = threading.Lock()
+
         can_transform_service_full: str = os.path.join(
             server_node_name, CAN_TRANSFORM_SERVICE_NAME
         )
@@ -195,11 +200,12 @@ class BufferClient(tf2_ros.BufferInterface):
         )
 
         try:
-            response: LookupTransformResponse = self._lookup_transform_client.call(
-                request
-            )
-            throw_on_error(response.status)
-            return response.transform
+            with self._mutex:
+                response: LookupTransformResponse = self._lookup_transform_client.call(
+                    request
+                )
+                throw_on_error(response.status)
+                return response.transform
         except CONNECTION_LOST_ERRORS as error:
             raise tf2_ros.TransformException(
                 f"service call to buffer server failed: {error}"
@@ -237,11 +243,12 @@ class BufferClient(tf2_ros.BufferInterface):
         )
 
         try:
-            response: LookupTransformResponse = self._lookup_transform_client.call(
-                request
-            )
-            throw_on_error(response.status)
-            return response.transform
+            with self._mutex:
+                response: LookupTransformResponse = self._lookup_transform_client.call(
+                    request
+                )
+                throw_on_error(response.status)
+                return response.transform
         except CONNECTION_LOST_ERRORS as error:
             raise tf2_ros.TransformException(
                 f"service call to buffer server failed: {error}"
@@ -274,8 +281,11 @@ class BufferClient(tf2_ros.BufferInterface):
         )
 
         try:
-            response: CanTransformResponse = self._can_transform_client.call(request)
-            return response.can_transform
+            with self._mutex:
+                response: CanTransformResponse = self._can_transform_client.call(
+                    request
+                )
+                return response.can_transform
         except CONNECTION_LOST_ERRORS as error:
             raise tf2_ros.TransformException(
                 f"service call to buffer server failed: {error}"
@@ -316,8 +326,11 @@ class BufferClient(tf2_ros.BufferInterface):
         )
 
         try:
-            response: CanTransformResponse = self._can_transform_client.call(request)
-            return response.can_transform
+            with self._mutex:
+                response: CanTransformResponse = self._can_transform_client.call(
+                    request
+                )
+                return response.can_transform
         except CONNECTION_LOST_ERRORS as error:
             raise tf2_ros.TransformException(
                 f"service call to buffer server failed: {error}"
