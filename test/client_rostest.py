@@ -20,6 +20,7 @@ import unittest
 import rosnode
 import rospy
 import tf2_ros
+from geometry_msgs.msg import PoseStamped
 
 import tf_service
 
@@ -83,6 +84,33 @@ class ClientRostest(unittest.TestCase):
             buffer.lookup_transform_full("bla", rospy.Time(0), "blub",
                                          rospy.Time(0), "bla",
                                          rospy.Duration(0.1))
+
+    def test_transform(self):
+        """
+        Smoke test for checking that the implicitly inherited transform() method
+        from BufferInterface is usable.
+        """
+        buffer = tf_service.BufferClient(EXPECTED_SERVER_NAME)
+        self.assertTrue(buffer.wait_for_server(rospy.Duration(0.1)))
+        pose = PoseStamped()
+        pose.header.stamp = rospy.Time.now()
+        pose.header.frame_id = EXPECTED_SOURCE_FRAME
+        buffer.transform(pose, EXPECTED_TARGET_FRAME)
+
+    def test_transform_full(self):
+        """
+        Smoke test for checking that the implicitly inherited transform_full()
+        method from BufferInterface is usable.
+        """
+        buffer = tf_service.BufferClient(EXPECTED_SERVER_NAME)
+        self.assertTrue(buffer.wait_for_server(rospy.Duration(0.1)))
+        pose = PoseStamped()
+        now = rospy.Time.now()
+        pose.header.stamp = now
+        pose.header.frame_id = EXPECTED_SOURCE_FRAME
+        buffer.transform_full(
+            pose, EXPECTED_TARGET_FRAME, now, EXPECTED_SOURCE_FRAME, rospy.Duration(1)
+        )
 
     def test_keepalive(self):
         buffer = tf_service.BufferClient(EXPECTED_SERVER_NAME,
