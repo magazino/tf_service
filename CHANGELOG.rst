@@ -2,6 +2,22 @@
 Changelog for package tf_service
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.0 (2025-06-17)
+------------------
+* Add Python ROS test for implicit transform()
+* Shield requests with a mutex
+  This is part of the C++ client but wasn't ported to the pure Python
+  client when I removed the bindings (I thought it's not needed).
+  Turns out that this could lead to regression when users do "special" stuff
+  like putting the client into a singleton that gets accessed by multiple
+  threads.
+* Native python client (`#24 <https://github.com/magazino/tf_service/issues/24>`_)
+  As described in the old ticket `#8 <https://github.com/magazino/tf_service/issues/8>`_, but making it the only Python client and dropping the bindings implementation.
+  Implementation is mostly straight-forward, however the service client in rospy lacks some features that are important for the connection checks of the persistent services. They are added through a `PersistentService` wrapper class around `ServiceProxy`. Although server / connection loss should be super rare, I wanted to keep the existing functionality for connection check and reconnect.
+  The [existing ROS test](https://github.com/magazino/tf_service/blob/master/test/client_rostest.py) covers already different reconnection scenarios. I also tested connection loss & recovery manually, and it works like with the previous bindings implementation (either by manual `buffer.wait_for_service()` / `reconnect()` or with the automatic keepalive option).
+  Overall, this still removes a bit more code than it adds as the binding gluecode is gone. Drawback is of course some logic duplication between C++ and Python now.
+  API stays the same and no changes in user code needed. Type-hints were added and are checked here in GitHub CI.
+
 0.8.0 (2025-04-30)
 ------------------
 * Add maintainer
